@@ -4,9 +4,9 @@ Contributors that are not SNIA members must first agree to the terms of the SNIA
 
 ----
 
-# Swordfish-API-Emulator
+# OFMF-Agent
 
-The Swordfish API Emulator can emulate a Swordfish-based system that responds to create, read, update, and delete RESTful API operations to allow developers to model new Swordfish functionality, test clients, demonstrate Swordfish, and do other similar functions.
+The OFMF-Agent is based on the Swordfish API Emulator to emulate a Redfish/Swordfish-based system that responds to create, read, update, and delete RESTful API operations to allow developers to model fabric, storage and system functionality, test clients, demonstrate REST interfaces, and do other similar functions.
 
 The Swordfish API Emulator extends the [DMTF Redfish Interface Emulator](https://github.com/DMTF/Redfish-Interface-Emulator) by adding code to an installation of the Redfish Interface Emulator code.
 
