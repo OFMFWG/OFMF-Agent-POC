@@ -33,7 +33,7 @@ WORK_DIR=../OFMF_Agent
 MOCKUP_DIR=../mockups
 
 
-API_PORT=5000
+API_PORT=5050
 SETUP_ONLY=
 
 function print_help {
