@@ -126,7 +126,7 @@ class MDChunksCollectionAPI(Resource):
         self.md_chunks = PATHS['Chassis']['md_chunks']
 
     def get(self, chassis, memory_domain):
-        path = os.path.join(self.root, self.chassis, chassis, self.memory_domains, 'index.json')
+        path = os.path.join(self.root, self.chassis, chassis, self.memory_domains, memory_domain, self.md_chunks, 'index.json')
         return get_json_data (path)
 
     def verify(self, config):
