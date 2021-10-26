@@ -33,7 +33,7 @@ WORK_DIR=../OFMF_Agent
 MOCKUP_DIR=../mockups
 
 
-API_PORT=5000
+API_PORT=5050
 SETUP_ONLY=
 
 function print_help {
@@ -136,6 +136,7 @@ rm -rf $WORK_DIR/api_emulator/redfish/static
 echo "Applying Swordfish additions..."
 cp -r -f $BASE_DIR/api_emulator $WORK_DIR/
 cp -r -f $BASE_DIR/emulator-config.json $WORK_DIR/
+cp -r -f $BASE_DIR/emulator.py $WORK_DIR/
 
 echo "Add mockups from OFMF mockup repository..."
 rm -rf $WORK_DIR/Resources
