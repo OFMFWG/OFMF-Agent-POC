@@ -33,7 +33,7 @@ WORK_DIR=../OFMF_Agent
 MOCKUP_DIR=../mockups
 
 
-API_PORT=5000
+API_PORT=5050
 SETUP_ONLY=
 
 function print_help {
@@ -132,10 +132,12 @@ venv/bin/pip install -q -r requirements.txt
 # Remove Redfish static / starting mockups
 rm -rf $WORK_DIR/api_emulator/redfish/static
 
-# Copy over the Swordfish bits
-echo "Applying Swordfish additions..."
+# Copy over the Agent bits
+echo "Applying Agent additions..."
 cp -r -f $BASE_DIR/api_emulator $WORK_DIR/
-cp -r -f $BASE_DIR/emulator-config.json $WORK_DIR/
+cp  -f $BASE_DIR/emulator-config.json $WORK_DIR/
+cp  -f $BASE_DIR/emulator.py $WORK_DIR
+cp -f ~/myPython/agentDB.json $WORK_DIR
 
 echo "Add mockups from OFMF mockup repository..."
 rm -rf $WORK_DIR/Resources

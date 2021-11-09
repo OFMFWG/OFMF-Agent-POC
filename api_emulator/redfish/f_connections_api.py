@@ -36,17 +36,25 @@ import traceback
 import logging
 import g
 import urllib3
+import copy
 
 from flask import jsonify, request
 from flask_restful import Resource
 from api_emulator.utils import update_collections_json, create_path, get_json_data, create_and_patch_object, delete_object, patch_object, put_object, delete_collection, create_collection
 from .constants import *
 from .templates.connections import get_Connections_instance
+from .templates.add_resource import z_add_resource_instance
 
 members =[]
 member_ids = []
 config = {}
+tmpStr=""
 INTERNAL_ERROR = 500
+
+# the following is temporary hack
+AGENT_DB_FILE = "./agentDB.json"
+agentDB ={}
+
 
 # FabricsConnectionsAPI API
 class FabricsConnectionsAPI(Resource):
@@ -55,12 +63,157 @@ class FabricsConnectionsAPI(Resource):
         self.root = PATHS['Root']
         self.fabrics = PATHS['Fabrics']['path']
         self.f_connections = PATHS['Fabrics']['f_connection']
+        global agentDB
+
+        # hack to get the agentDB
+        with open(AGENT_DB_FILE, "r") as file_json:
+            agentDB=json.load(file_json)
+        file_json.close()
 
     # HTTP GET
     def get(self, fabric, f_connection):
         path = create_path(self.root, self.fabrics, fabric, self.f_connections, f_connection, 'index.json')
         return get_json_data (path)
 
+    # HTTP POST
+    # - Create the resource (since URI variables are available)
+    # - Update the members and members.id lists
+    # - Attach the APIs of subordinate resources (do this only once)
+    # - Finally, create an instance of the subordiante resources
+    def post(self, fabric, f_connection):
+        logging.info('FabricsConnectionsAPI POST called')
+        path = create_path(self.root, self.fabrics, fabric, self.f_connections, f_connection)
+        collection_path = os.path.join(self.root, self.fabrics, fabric, self.f_connections, 'index.json')
+
+        try:
+            global config
+            if request.data: 
+                config= json.loads(request.data)
+            
+            connType = config["ConnectionType"]
+            if connType != "Memory":
+                print("ooops, not a memory resource connection -- exit")
+                return
+            print("connection passed in ", json.dumps(config,indent=4)) 
+            fab_uuid = agentDB["fabricIDs"]["fab_uuid"]
+            connID = config["Id"] 
+            # only 1 memory chunk per connection allowed in PoC
+            tmpStr=config["MemoryChunkInfo"][0]["MemoryChunk"]["@odata.id"]
+            md_id = tmpStr.split("/")[6]
+            mc_id= tmpStr.split("/")[-1]
+            connURI = config["@odata.id"]
+            tmpConn = {}
+            tmpConn["@odata.id"] = connURI
+            print("connection URI ",tmpConn)
+            zephyrCMD_count = 0
+            producers= copy.deepcopy(config["Links"]["TargetEndpoints"])
+            consumers= copy.deepcopy(config["Links"]["InitiatorEndpoints"])
+            print("consumers ",consumers)
+            chunks= copy.deepcopy(config["MemoryChunkInfo"])
+            print(chunks)
+
+            # each producer(memory target) must have its own add_resource() call
+            for p_index, p_item in enumerate(producers):
+                PchunkDetails = []
+                p_nodeID=""
+                p_endpt= p_item["@odata.id"].split("/")[-1]
+                print("p_endpt ",p_endpt)
+                p_nodeID = agentDB["endpt_xref"][p_endpt]
+                p_cuuid = agentDB["nodes"][p_nodeID]["zephyrNodeIDs"]["id"]
+                print("p_nodeID ",p_nodeID)
+                print("p_cuuid ",p_cuuid)
+                # get producer's memory resources which are used in this connection
+                # all memoryChunks must be from same producer 
+                p_Chunks=[]
+                p_Chunks=copy.deepcopy(agentDB["nodes"][p_nodeID]\
+                        ["nodeProperties"]["memchunks"])
+                print("p_Chunks ",json.dumps(p_Chunks,indent=4))
+                # search all chunks mentioned in connection, for link to this producer
+                for con_ch_index, con_ch_item in enumerate(chunks):
+                    print("connector chunk ", json.dumps(con_ch_item, indent=4))
+                    conn_chunkURI=con_ch_item["MemoryChunk"]["@odata.id"]
+                    print("connector chunk uri ", conn_chunkURI)
+                    for index, item in enumerate(p_Chunks):
+                        p_chunkURI=p_Chunks[index]["@odata.id"]
+                        print("producer chunk URI ",p_chunkURI)
+                        if p_chunkURI == conn_chunkURI :
+                            PchunkDetails.append(copy.deepcopy(p_Chunks[index]))
+
+                #  now list all consumers of these memory chunks from this producer
+                if len(PchunkDetails) == 0:
+                    print("producer not found ")
+                    resp = 404
+                    return resp
+
+                consumers_cuuid=[]
+                for c_index, c_item in enumerate(consumers):
+                    print("consumer check index ",c_index)
+                    # need to build the list of consumers c_uuids
+                    c_nodeID=""
+                    c_endpt= c_item["@odata.id"].split("/")[-1]
+                    print("c_endpt ",c_endpt)
+                    c_nodeID = agentDB["endpt_xref"][c_endpt]
+                    c_cuuid = agentDB["nodes"][c_nodeID]["zephyrNodeIDs"]["id"]
+                    print("c_nodeID ",c_nodeID)
+                    print("c_cuuid ",c_cuuid)
+                    consumers_cuuid.append(c_cuuid)
+                    #  add the connection to the consumer's node data
+                    agentDB["nodes"][c_nodeID]["nodeProperties"]\
+                        ["connections"].append(tmpConn)
+
+                
+                # ready to stuff the add_resource() template
+                # right now, all producer memory use the same flags, class, and class_uuid
+                class_uuid=PchunkDetails[0]["class_uuid"]
+                flags_int=PchunkDetails[0]["flags"]
+                class_int=PchunkDetails[0]["class"]
+                wildcards = { "fab_uuid":fab_uuid, "prod_cuuid":p_cuuid, \
+                        "class_uuid":class_uuid, "flags_int":flags_int, \
+                        "class_int":class_int}
+                zephyr_body = copy.deepcopy(z_add_resource_instance(wildcards))
+                # fix up some type() miss-alignments
+                zephyr_body["resource"]["resources"][0]["flags"]= \
+                        int(zephyr_body["resource"]["resources"][0]["flags"])
+                zephyr_body["resource"]["resources"][0]["class"]= \
+                        int(zephyr_body["resource"]["resources"][0]["class"])
+                # add in the consumers
+                zephyr_body["resource"]["consumers"] = copy.deepcopy(consumers_cuuid)
+                # add in memory chunk details from producer's relevant memory chunks
+                # there could be more than one chunk, but for now only one producer
+                for index, item in enumerate(PchunkDetails):
+                    tmpMemDetails = {}
+                    tmpMemDetails["start"] = PchunkDetails[index]["start"]
+                    tmpMemDetails["length"] = PchunkDetails[index]["length"]
+                    tmpMemDetails["type"] = PchunkDetails[index]["type"]
+                    tmpMemDetails["ro_rkey"] = PchunkDetails[index]["ro_rkey"]
+                    tmpMemDetails["rw_rkey"] = PchunkDetails[index]["rw_rkey"]
+                    zephyr_body["resource"]["resources"][0]["memory"].append(\
+                            copy.deepcopy(tmpMemDetails))
+                
+                print(json.dumps(zephyr_body, indent=4))
+                with open("./zephyrAdd_MD"+md_id+"_MC"+mc_id+"_"+str(zephyrCMD_count)+\
+                        ".json","w") as jdata:
+                    json.dump(zephyr_body, jdata, indent=4)
+                    jdata.close()
+                zephyrCMD_count = zephyrCMD_count+1
+                #  add the connection to the producer's node data
+                agentDB["nodes"][p_nodeID]["nodeProperties"]\
+                        ["connections"].append(tmpConn)
+
+            # write the DB back to file
+            with open(AGENT_DB_FILE, "w") as file_json:
+                json.dump(agentDB,file_json, indent=4)
+            file_json.close()
+
+            resp = config, 200
+
+        except Exception:
+            traceback.print_exc()
+            resp = INTERNAL_ERROR
+        logging.info('FabricsConnectionsAPI POST exit')
+        return resp
+
+    '''
     # HTTP POST
     # - Create the resource (since URI variables are available)
     # - Update the members and members.id lists
@@ -90,6 +243,7 @@ class FabricsConnectionsAPI(Resource):
             resp = INTERNAL_ERROR
         logging.info('FabricsConnectionsAPI POST exit')
         return resp
+    '''
 
 	# HTTP PATCH
     def patch(self, fabric, f_connection):

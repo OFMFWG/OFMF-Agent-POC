@@ -44,6 +44,7 @@ import json
 import datetime
 import traceback
 import shutil
+import logging
 
 from flask import jsonify, request
 from functools import wraps
@@ -136,11 +137,17 @@ def create_path(*args):
     trimmed = [str(arg).strip('/') for arg in args]
     return os.path.join(*trimmed)
 
+def create_agent_path(*args):
+    trimmed = [str(arg).strip('/') for arg in args]
+    agentpath = os.path.join(*trimmed)
+    return (agentpath.replace ("\\", "/"))
+
     # HTTP GET
 def get_json_data(path):
     try:
         json_data = open(path)
         data = json.load(json_data)
+        data = remove_json_object(data, "@Redfish.Copyright")
     except Exception as e:
         traceback.print_exc()
         return {"error": "Unable to read file because of the following error::{}".format(e)}, 404
@@ -298,3 +305,73 @@ def create_collection (collection_path, collection_type):
         traceback.print_exc()
         resp = 500
     return resp
+
+def remove_json_object (config, property_id):
+    # Iterate through the objects in the JSON and pop (remove)
+    # the obj once we find it.
+
+    if property_id in config:
+        config.pop (property_id, None)
+    return config
+
+def add_input_body_properties (config):
+    # Add incoming request body properties to config, saving and resetting the odata_id and object_id.
+
+    odata_id = config['@odata.id']
+    object_id = config['Id']
+
+    # If input body data, then update properties
+    if request.data:
+        request_data = json.loads(request.data)
+        # Update the keys of payload in json file.
+        for key, value in request_data.items():
+            config[key] = value
+
+        config['@odata.id'] = odata_id
+        config['Id'] = object_id
+
+    return config
+
+    # For POST Singleton API:
+def create_and_patch_agent_object (config, members, member_ids, path, collection_path):
+
+    members.append(config)
+    member_ids.append({'@odata.id': config['@odata.id']})
+
+    # Create instances of subordinate resources, then call put operation
+    # not implemented yet
+    if not os.path.exists(path):
+        os.mkdir(path)
+    else:
+        # This will execute when POST is called for more than one time for a resource
+        return config, 409
+    with open(os.path.join(path, "index.json"), "w") as fd:
+        fd.write(json.dumps(config, indent=4, sort_keys=True))
+
+    # update the collection json file with new added resource
+    update_collections_json(path=collection_path, link=config['@odata.id'])
+    return config
+
+def patch_agent_object(path, config):
+    try:
+    # Read json from file.
+        with open(path, 'r') as data_json:
+            data = json.load(data_json)
+            data_json.close()
+
+        # If input body data, then update properties
+        if config:
+            request_data = json.loads(config)
+            # Update the keys of payload in json file.
+            for key, value in request_data.items():
+                data[key] = value
+
+        # Write the updated json to file.
+        with open(path, 'w') as f:
+            json.dump(data, f)
+            f.close()
+
+    except Exception as e:
+        return {"error": "Unable to read file because of the following error:{}".format(e)}, 404
+
+    return True
