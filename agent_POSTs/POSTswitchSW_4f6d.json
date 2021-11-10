@@ -1,0 +1,27 @@
+{
+    "@Redfish.Copyright": "Copyright 2014-2021 SNIA. All rights reserved.",
+    "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Switches/SW_4f6d",
+    "@odata.type": "#Switch.v1_5_0.Switch",
+    "GenZ": {
+        "gcid": "0000:005",
+        "c_uuid": "dce432d5-9874-4d4e-af63-5163c4deb354"
+    },
+    "Id": "SW_4f6d",
+    "IsManaged": "true",
+    "Links": {
+        "Endpoints": [
+            "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/5"
+        ]
+    },
+    "Name": "Gen-Z Switch",
+    "Ports": {
+        "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Switches/SW_4f6d/Ports"
+    },
+    "SerialNumber": "0x139b2a604a023450",
+    "Status": {
+        "Health": "OK",
+        "State": "Enabled"
+    },
+    "SwitchType": "GenZ",
+    "UUID": "bd0df500-9b16-4f6d-aaa0-cecd0ce256ee"
+}

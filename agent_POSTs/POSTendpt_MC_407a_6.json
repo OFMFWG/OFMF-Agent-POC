@@ -1,0 +1,31 @@
+{
+    "@Redfish.Copyright": "Copyright 2014-2021 SNIA. All rights reserved.",
+    "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/6",
+    "@odata.type": "#Endpoint.v1_0_0.Endpoint",
+    "ConnectedEntities": [
+        {
+            "EntityLink": {
+                "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MediaControllers/MC_407a"
+            },
+            "EntityType": "MediaController",
+            "GenZ": {
+                "GCID": {
+                    "CID": "006",
+                    "SID": "0000"
+                },
+                "AccessKey": "0xZZZZZZZ"
+            }
+        }
+    ],
+    "Description": "endpoint for MediaController MC_407a",
+    "EndpointProtocol": "GenZ",
+    "Id": "6",
+    "Links": {
+        "Connections": []
+    },
+    "Name": "MediaController MC_407a",
+    "Status": {
+        "Health": "OK",
+        "State": "Enabled"
+    }
+}

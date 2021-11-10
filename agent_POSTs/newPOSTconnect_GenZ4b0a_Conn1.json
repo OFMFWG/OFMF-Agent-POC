@@ -1,0 +1,48 @@
+{
+    "@Redfish.Copyright": "Copyright 2014-2021 SNIA. All rights reserved.",
+    "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Connections/1",
+    "@odata.type": "#Connection.v1_0_0.Connection",
+    "ConnectionKeys": {
+        "GenZ": {
+            "AccessKey": "0",
+            "RKeyDomainCheckingEnabled": "true",
+            "RKeyReadOnlyKey": "0",
+            "RKeyReadWriteKey": "0"
+        }
+    },
+    "ConnectionType": "Memory",
+    "Id": "1",
+    "Links": {
+        "InitiatorEndpoints": [
+            {
+                "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/1"
+	    },
+	    {
+                "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/4"
+            }
+        ],
+        "TargetEndpoints": [
+            {
+                "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/2"
+            }
+        ]
+    },
+    "MemoryChunkInfo": [
+        {
+            "MemoryChunk": {
+                "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MemoryDomains/2/MemoryChunks/1"
+            },
+            "AccessCapabilities": [
+                "Read",
+                "Write"
+            ],
+            "AccessState": "Optimized"
+        }
+    ],
+    "Name": "Connection 1",
+    "Status": {
+        "Health": "OK",
+        "HealthRollup": "OK",
+        "State": "Enabled"
+    }
+}

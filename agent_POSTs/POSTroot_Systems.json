@@ -1,0 +1,8 @@
+{
+    "@Redfish.Copyright": "Copyright 2014-2021 SNIA. All rights reserved.",
+    "@odata.id": "/redfish/v1/Systems",
+    "@odata.type": "#SystemsCollection.SystemsCollection",
+    "Members": [],
+    "Members@odata.count": 0,
+    "Name": "Systems Collection"
+}

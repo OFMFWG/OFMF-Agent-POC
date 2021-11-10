@@ -1,0 +1,22 @@
+{
+    "@Redfish.Copyright": "Copyright 2021 OpenFabrics Alliance. All rights reserved.",
+    "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MemoryDomains/3/MemoryChunks/1",
+    "@odata.type": "#MemoryChunks.v1_0_0.MemoryChunks",
+    "AddressRangeOffsetMiB": 0,
+    "AddressRangeType": "Volatile",
+    "Id": "1",
+    "Links": {
+        "Endpoints": [
+            {
+                "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/4"
+            }
+        ]
+    },
+    "MemoryChunkSizeMiB": 65536,
+    "Name": "Memory Domain Chunk 1",
+    "Oem": {
+        "class": 2,
+        "type": 1,
+        "flags": 0
+    }
+}

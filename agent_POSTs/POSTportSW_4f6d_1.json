@@ -1,0 +1,21 @@
+{
+    "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Switches/SW_4f6d/Ports/1",
+    "@odata.type": "Port.v1_4_0.Port",
+    "Description": "Fabric switch port 1",
+    "Id": "1",
+    "Links": {
+        "AssociatedEndpoints": [
+            {
+                "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/3"
+            }
+        ],
+        "ConnectedPorts": [
+            {
+                "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Switches/SW_4fb0/Ports/2"
+            }
+        ]
+    },
+    "Name": "Fabric switch Port 1",
+    "PhysicalPort": "TRUE",
+    "PortId": "4"
+}

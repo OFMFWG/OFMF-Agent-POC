@@ -1,0 +1,18 @@
+{
+    "@Redfish.Copyright": "Copyright 2014-2021 SNIA. All rights reserved.",
+    "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MemoryDomains/2",
+    "@odata.type": "#MemoryDomain.v1_3_0.MemoryDomain",
+    "AllowsBlockProvisioning": "true",
+    "AllowsMemoryChunkCreation": "true",
+    "Description": "Memory Domain 2",
+    "Id": "2",
+    "Links": {
+        "MediaControllers": {
+            "@odata.id": "/redfish/v1/Systems/SY_478d/FabricAdapters/FA_478d"
+        }
+    },
+    "MemoryChunks": {
+        "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MemoryDomains/2/MemoryChunks"
+    },
+    "Name": "MemoryDomains 2"
+}

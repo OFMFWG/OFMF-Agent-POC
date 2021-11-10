@@ -1,0 +1,27 @@
+{
+    "fabric_uuid": "4dbd8853-4f07-4b0a-bd43-207238726af7",
+    "resource": {
+        "producer": "e3331770-6648-4def-8100-404d844298d3:0x013a4a851d408245",
+        "consumers": [
+            "e3331770-6648-4def-8100-404d844298d3:0x013a4a851c810045",
+            "859be62c-b435-49fe-bf18-c2ac4a50f9c5:0x014be7a114504305"
+        ],
+        "resources": [
+            {
+                "class_uuid": "f147276b-c2c1-431e-91af-3031d0039768",
+                "instance_uuid": "???",
+                "flags": 66050,
+                "class": 2,
+                "memory": [
+                    {
+                        "start": 0,
+                        "length": 4294967296,
+                        "type": 1,
+                        "ro_rkey": 0,
+                        "rw_rkey": 0
+                    }
+                ]
+            }
+        ]
+    }
+}

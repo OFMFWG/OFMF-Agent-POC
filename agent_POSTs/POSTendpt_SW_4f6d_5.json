@@ -1,0 +1,31 @@
+{
+    "@Redfish.Copyright": "Copyright 2014-2021 SNIA. All rights reserved.",
+    "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/5",
+    "@odata.type": "#Endpoint.v1_0_0.Endpoint",
+    "ConnectedEntities": [
+        {
+            "EntityLink": {
+                "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Switches/SW_4f6d"
+            },
+            "EntityType": "Switch",
+            "GenZ": {
+                "GCID": {
+                    "CID": "005",
+                    "SID": "0000"
+                },
+                "AccessKey": "0xZZZZ"
+            }
+        }
+    ],
+    "Description": "endpoint for Switch SW_4f6d",
+    "EndpointProtocol": "GenZ",
+    "Id": "5",
+    "Links": {
+        "Connections": []
+    },
+    "Name": "Switch SW_4f6d",
+    "Status": {
+        "Health": "OK",
+        "State": "Enabled"
+    }
+}

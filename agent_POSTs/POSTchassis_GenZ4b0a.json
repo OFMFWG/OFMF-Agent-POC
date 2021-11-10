@@ -1,0 +1,34 @@
+{
+    "@odata.id": "/redfish/v1/Chassis/GenZ4b0a",
+    "@odata.type": "#Chassis.1.0.0.Chassis",
+    "ChassisType": "Sled",
+    "Id": "GenZ4b0a",
+    "IndicatorLED": "Off",
+    "Links": {
+        "ManagedBy": [
+            {
+                "@odata.id": "/redfish/v1/Managers/1"
+            }
+        ],
+        "ManagersInChassis": [
+            {
+                "@odata.id": "/redfish/v1/Managers/1"
+            }
+        ]
+    },
+    "Manufacturer": "Contoso",
+    "MediaControllers": {
+        "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MediaControllers"
+    },
+    "MemoryDomains": {
+        "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MemoryDomains"
+    },
+    "Model": "Contoso Memory Node",
+    "Name": "Memory Node",
+    "PowerState": "On",
+    "SerialNumber": "<SerialNumber>",
+    "Status": {
+        "Health": "OK",
+        "State": "Enabled"
+    }
+}

@@ -1,0 +1,30 @@
+{
+    "@Redfish.Copyright": "Copyright 2014-2021 SNIA. All rights reserved.",
+    "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MediaControllers/MC_407a",
+    "@odata.type": "#MediaController.v1_6_0.MediaController",
+    "Description": "Media Controller",
+    "GenZ": {
+        "gcid": "0000:006",
+        "max_data": 68719476736,
+        "c_uuid": "859be62c-b435-49fe-bf18-c2ac4a50f9c5",
+        "minChunkSize": 33554432,
+        "maxChunks": 2048
+    },
+    "Id": "MC_407a",
+    "Links": {
+        "Endpoints": [
+            "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/6"
+        ]
+    },
+    "Model": "zMM-xxx",
+    "Name": "Media Controller MC_407a",
+    "Ports": {
+        "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MediaControllers/MC_407a/Ports"
+    },
+    "SerialNumber": "0x014be7a11431e285",
+    "Status": {
+        "Health": "OK",
+        "State": "Enabled"
+    },
+    "UUID": "b8344413-91ce-407a-b1ca-d231708c084c"
+}

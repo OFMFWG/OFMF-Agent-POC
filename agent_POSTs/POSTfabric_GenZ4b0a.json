@@ -1,0 +1,25 @@
+{
+    "@Redfish.Copyright": "Copyright 2014-2021 SNIA. All rights reserved.",
+    "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a",
+    "@odata.type": "#Fabric.v1_2_2.Fabric",
+    "Connections": {
+        "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Connections"
+    },
+    "Description": "Fabric Instance GenZ4b0a",
+    "Endpoints": {
+        "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints"
+    },
+    "Id": "GenZ4b0a",
+    "Name": "Fabric GenZ4b0a",
+    "Oem": [
+        {
+            "fab_uuid": "4dbd8853-4f07-4b0a-bd43-207238726af7"
+        }
+    ],
+    "Switches": {
+        "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Switches"
+    },
+    "Zones": {
+        "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Zones"
+    }
+}
