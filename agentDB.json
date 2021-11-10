@@ -1,0 +1,619 @@
+{
+    "fabricIDs": {
+        "fab_uuid": "4dbd8853-4f07-4b0a-bd43-207238726af7",
+        "mgr_uuids": [
+            "e770469d-fa04-4afc-b9e6-762c8fe782ee"
+        ],
+        "pfm": "e3331770-6648-4def-8100-404d844298d3:0x013a4a851c810045",
+        "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a",
+        "nodeCount": 6,
+        "daxCount": 0,
+        "memDomainCount": 4,
+        "pfmID": "c702c5f1-0345-4739-8807-fa80054230d0",
+        "f_id": "GenZ4b0a",
+        "rb": "/redfish/v1/",
+        "ch_id": "GenZ4b0a",
+        "md_path": "/redfish/v1/Chassis/GenZ4b0a/MemoryDomains",
+        "mc_path": "/redfish/v1/Chassis/GenZ4b0a/MediaControllers"
+    },
+    "nodes": {
+        "c702c5f1-0345-4739-8807-fa80054230d0": {
+            "zephyrNodeIDs": {
+                "instance_uuid": "c702c5f1-0345-4739-8807-fa80054230d0",
+                "cclass": 20,
+                "mgr_uuid": "e770469d-fa04-4afc-b9e6-762c8fe782ee",
+                "gcids": [
+                    "0000:001"
+                ],
+                "fru_uuid": "00000000-0000-0000-0000-000000000000",
+                "max_data": 4294967296,
+                "max_iface": 2,
+                "cstate": "C-Up",
+                "id": "e3331770-6648-4def-8100-404d844298d3:0x013a4a851c810045",
+                "node_index": "1",
+                "md_index": "1",
+                "rsp_page_grid_ps": 21,
+                "c_uuid": "e3331770-6648-4def-8100-404d844298d3"
+            },
+            "redfishIDs": {
+                "@odata.id": "/redfish/v1/Systems/SY_4739/FabricAdapters/FA_4739",
+                "@odata.type": "#FabricAdapter.v1_0_0.FabricAdapter",
+                "Id": "FA_4739",
+                "Name": "Gen-Z External Fabric Bridge",
+                "SerialNumber": "0x013a4a851c810045",
+                "UUID": "c702c5f1-0345-4739-8807-fa80054230d0",
+                "Status": {
+                    "State": "Enabled",
+                    "Health": "OK"
+                },
+                "s_id": "SY_4739",
+                "fa_id": "FA_4739",
+                "ep_id": "1"
+            },
+            "nodeProperties": {
+                "functionality": {
+                    "EntityType": "FabricBridge",
+                    "EntityRole": "Initiator",
+                    "GenZ": {
+                        "GCID": {
+                            "CID": "001",
+                            "SID": "0000"
+                        },
+                        "AccessKey": "0xZZZZ"
+                    },
+                    "minChunkSize": 2097152,
+                    "maxChunks": 2048
+                },
+                "endpoints": {
+                    "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/1",
+                    "@odata.type": "#Endpoint.v1_6_0.Endpoint",
+                    "Id": "1",
+                    "Name": "Bridge FA_4739",
+                    "Description": "Fabric Bridge"
+                },
+                "memdomains": [
+                    {
+                        "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MemoryDomains/1"
+                    }
+                ],
+                "memchunks": [],
+                "connections": []
+            },
+            "topology": {
+                "node_ports": {
+                    "0000:001.0": {
+                        "num": "0000:001.0",
+                        "state": "I-Up",
+                        "phy": {
+                            "status": "PHY-Up",
+                            "tx_LWR": 0,
+                            "rx_LWR": 0
+                        },
+                        "peer_port": {
+                            "num": "0000:002.0",
+                            "state": "I-Up",
+                            "ConnectedPorts": "/redfish/v1/Systems/SY_478d/FabricAdapters/FA_478d/Ports/0"
+                        },
+                        "redfish_portID": 0
+                    },
+                    "0000:001.1": {
+                        "num": "0000:001.1",
+                        "state": "I-Up",
+                        "phy": {
+                            "status": "PHY-Up",
+                            "tx_LWR": 0,
+                            "rx_LWR": 0
+                        },
+                        "peer_port": {
+                            "num": "0000:005.1",
+                            "state": "I-Up",
+                            "ConnectedPorts": "/redfish/v1/Fabrics/GenZ4b0a/Switches/SW_4f6d/Ports/0"
+                        },
+                        "redfish_portID": 1
+                    }
+                }
+            }
+        },
+        "f9c62e38-5e3f-478d-b2e6-d9be7c4ee261": {
+            "zephyrNodeIDs": {
+                "instance_uuid": "f9c62e38-5e3f-478d-b2e6-d9be7c4ee261",
+                "cclass": 20,
+                "mgr_uuid": "e770469d-fa04-4afc-b9e6-762c8fe782ee",
+                "gcids": [
+                    "0000:002"
+                ],
+                "fru_uuid": "00000000-0000-0000-0000-000000000000",
+                "max_data": 4294967296,
+                "max_iface": 2,
+                "cstate": "C-Up",
+                "id": "e3331770-6648-4def-8100-404d844298d3:0x013a4a851d408245",
+                "node_index": "2",
+                "md_index": "2",
+                "rsp_page_grid_ps": 21,
+                "c_uuid": "e3331770-6648-4def-8100-404d844298d3"
+            },
+            "redfishIDs": {
+                "@odata.id": "/redfish/v1/Systems/SY_478d/FabricAdapters/FA_478d",
+                "@odata.type": "#FabricAdapter.v1_0_0.FabricAdapter",
+                "Id": "FA_478d",
+                "Name": "Gen-Z External Fabric Bridge",
+                "SerialNumber": "0x013a4a851d408245",
+                "UUID": "f9c62e38-5e3f-478d-b2e6-d9be7c4ee261",
+                "Status": {
+                    "State": "Enabled",
+                    "Health": "OK"
+                },
+                "s_id": "SY_478d",
+                "fa_id": "FA_478d",
+                "ep_id": "2"
+            },
+            "nodeProperties": {
+                "functionality": {
+                    "EntityType": "FabricBridge",
+                    "EntityRole": "Initiator",
+                    "GenZ": {
+                        "GCID": {
+                            "CID": "002",
+                            "SID": "0000"
+                        },
+                        "AccessKey": "0xZZZZ"
+                    },
+                    "minChunkSize": 2097152,
+                    "maxChunks": 2048
+                },
+                "endpoints": {
+                    "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/2",
+                    "@odata.type": "#Endpoint.v1_6_0.Endpoint",
+                    "Id": "2",
+                    "Name": "Bridge FA_478d",
+                    "Description": "Fabric Bridge"
+                },
+                "memdomains": [
+                    {
+                        "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MemoryDomains/2"
+                    }
+                ],
+                "memchunks": [],
+                "connections": []
+            },
+            "topology": {
+                "node_ports": {
+                    "0000:002.0": {
+                        "num": "0000:002.0",
+                        "state": "I-Up",
+                        "phy": {
+                            "status": "PHY-Up",
+                            "tx_LWR": 0,
+                            "rx_LWR": 0
+                        },
+                        "peer_port": {
+                            "num": "0000:001.0",
+                            "state": "I-Up",
+                            "ConnectedPorts": "/redfish/v1/Systems/SY_4739/FabricAdapters/FA_4739/Ports/0"
+                        },
+                        "redfish_portID": 0
+                    },
+                    "0000:002.1": {
+                        "num": "0000:002.1",
+                        "state": "I-Up",
+                        "phy": {
+                            "status": "PHY-Up",
+                            "tx_LWR": 0,
+                            "rx_LWR": 0
+                        },
+                        "peer_port": {
+                            "num": "0000:003.0",
+                            "state": "I-Up",
+                            "ConnectedPorts": "/redfish/v1/Fabrics/GenZ4b0a/Switches/SW_4fb0/Ports/0"
+                        },
+                        "redfish_portID": 1
+                    }
+                }
+            }
+        },
+        "36a4cd08-91a6-4fb0-9e47-abac52af6fea": {
+            "zephyrNodeIDs": {
+                "instance_uuid": "36a4cd08-91a6-4fb0-9e47-abac52af6fea",
+                "cclass": 5,
+                "mgr_uuid": "e770469d-fa04-4afc-b9e6-762c8fe782ee",
+                "gcids": [
+                    "0000:003"
+                ],
+                "fru_uuid": "1a35fb53-6877-4e4c-b6f8-7f3b56d60a49",
+                "max_data": 0,
+                "max_iface": 5,
+                "cstate": "C-Up",
+                "id": "dce432d5-9874-4d4e-af63-5163c4deb354:0x139b2a604a023451",
+                "node_index": "3",
+                "rsp_page_grid_ps": 0,
+                "c_uuid": "dce432d5-9874-4d4e-af63-5163c4deb354"
+            },
+            "redfishIDs": {
+                "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Switches/SW_4fb0",
+                "@odata.type": "#Switch.v1_6_0.Switch",
+                "Id": "SW_4fb0",
+                "Name": "Gen-Z External Switch",
+                "SerialNumber": "0x139b2a604a023451",
+                "UUID": "36a4cd08-91a6-4fb0-9e47-abac52af6fea",
+                "Status": {
+                    "State": "Enabled",
+                    "Health": "OK"
+                },
+                "sw_id": "SW_4fb0",
+                "ep_id": "3"
+            },
+            "nodeProperties": {
+                "functionality": {
+                    "EntityType": "Switch",
+                    "EntityRole": "Switch",
+                    "GenZ": {
+                        "GCID": {
+                            "CID": "003",
+                            "SID": "0000"
+                        },
+                        "AccessKey": "0xZZZZ"
+                    },
+                    "minChunkSize": 0,
+                    "maxChunks": 0
+                },
+                "endpoints": {
+                    "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/3",
+                    "@odata.type": "#Endpoint.v1_6_0.Endpoint",
+                    "Id": "3",
+                    "Name": "Switch SW_4fb0",
+                    "Description": "Switch"
+                },
+                "memdomains": [],
+                "memchunks": [],
+                "connections": []
+            },
+            "topology": {
+                "node_ports": {
+                    "0000:003.0": {
+                        "num": "0000:003.0",
+                        "state": "I-Up",
+                        "phy": {
+                            "status": "PHY-Up",
+                            "tx_LWR": 0,
+                            "rx_LWR": 0
+                        },
+                        "peer_port": {
+                            "num": "0000:002.1",
+                            "state": "I-Up",
+                            "AssociatedEndpoints": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/2",
+                            "ConnectedPorts": "/redfish/v1/Systems/SY_478d/FabricAdapters/FA_478d/Ports/1"
+                        },
+                        "redfish_portID": 0
+                    },
+                    "0000:003.2": {
+                        "num": "0000:003.2",
+                        "state": "I-Up",
+                        "phy": {
+                            "status": "PHY-Up",
+                            "tx_LWR": 0,
+                            "rx_LWR": 0
+                        },
+                        "peer_port": {
+                            "num": "0000:004.0",
+                            "state": "I-Up",
+                            "AssociatedEndpoints": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/4",
+                            "ConnectedPorts": "/redfish/v1/Chassis/GenZ4b0a/MediaControllers/MC_479c/Ports/0"
+                        },
+                        "redfish_portID": 1
+                    },
+                    "0000:003.4": {
+                        "num": "0000:003.4",
+                        "state": "I-Up",
+                        "phy": {
+                            "status": "PHY-Up",
+                            "tx_LWR": 0,
+                            "rx_LWR": 0
+                        },
+                        "peer_port": {
+                            "num": "0000:005.4",
+                            "state": "I-Up",
+                            "AssociatedEndpoints": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/5",
+                            "ConnectedPorts": "/redfish/v1/Fabrics/GenZ4b0a/Switches/SW_4f6d/Ports/1"
+                        },
+                        "redfish_portID": 2
+                    }
+                }
+            }
+        },
+        "aca9378c-530d-479c-acb0-f081083a5d44": {
+            "zephyrNodeIDs": {
+                "instance_uuid": "aca9378c-530d-479c-acb0-f081083a5d44",
+                "cclass": 2,
+                "mgr_uuid": "e770469d-fa04-4afc-b9e6-762c8fe782ee",
+                "gcids": [
+                    "0000:004"
+                ],
+                "fru_uuid": "00000000-0000-0000-0000-000000000000",
+                "max_data": 68719476736,
+                "max_iface": 4,
+                "cstate": "C-Up",
+                "id": "859be62c-b435-49fe-bf18-c2ac4a50f9c5:0x014be7a114504305",
+                "node_index": "4",
+                "md_index": "3",
+                "rsp_page_grid_ps": 25,
+                "c_uuid": "859be62c-b435-49fe-bf18-c2ac4a50f9c5"
+            },
+            "redfishIDs": {
+                "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MediaControllers/MC_479c",
+                "@odata.type": "#MediaController.v1_2_0.MediaController",
+                "Id": "MC_479c",
+                "Name": "Media Controller",
+                "MediaControllerType": "Memory",
+                "SerialNumber": "0x014be7a114504305",
+                "UUID": "aca9378c-530d-479c-acb0-f081083a5d44",
+                "Status": {
+                    "State": "Enabled",
+                    "Health": "OK"
+                },
+                "mc_id": "MC_479c",
+                "ep_id": "4"
+            },
+            "nodeProperties": {
+                "functionality": {
+                    "EntityType": "MediaController",
+                    "EntityRole": "Target",
+                    "GenZ": {
+                        "GCID": {
+                            "CID": "004",
+                            "SID": "0000"
+                        },
+                        "AccessKey": "0xZZZZZZZ"
+                    },
+                    "minChunkSize": 33554432,
+                    "maxChunks": 2048
+                },
+                "endpoints": {
+                    "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/4",
+                    "@odata.type": "#Endpoint.v1_6_0.Endpoint",
+                    "Id": "4",
+                    "Name": "MediaController MC_479c",
+                    "Description": "Fabric Attached Memory Media Controller"
+                },
+                "memdomains": [
+                    {
+                        "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MemoryDomains/3"
+                    }
+                ],
+                "memchunks": [],
+                "connections": []
+            },
+            "topology": {
+                "node_ports": {
+                    "0000:004.0": {
+                        "num": "0000:004.0",
+                        "state": "I-Up",
+                        "phy": {
+                            "status": "PHY-Up",
+                            "tx_LWR": 0,
+                            "rx_LWR": 0
+                        },
+                        "peer_port": {
+                            "num": "0000:003.2",
+                            "state": "I-Up",
+                            "ConnectedPorts": "/redfish/v1/Fabrics/GenZ4b0a/Switches/SW_4fb0/Ports/1"
+                        },
+                        "redfish_portID": 0
+                    }
+                }
+            }
+        },
+        "bd0df500-9b16-4f6d-aaa0-cecd0ce256ee": {
+            "zephyrNodeIDs": {
+                "instance_uuid": "bd0df500-9b16-4f6d-aaa0-cecd0ce256ee",
+                "cclass": 5,
+                "mgr_uuid": "e770469d-fa04-4afc-b9e6-762c8fe782ee",
+                "gcids": [
+                    "0000:005"
+                ],
+                "fru_uuid": "1a35fb53-6877-4e4c-b6f8-7f3b56d60a49",
+                "max_data": 0,
+                "max_iface": 5,
+                "cstate": "C-Up",
+                "id": "dce432d5-9874-4d4e-af63-5163c4deb354:0x139b2a604a023450",
+                "node_index": "5",
+                "rsp_page_grid_ps": 0,
+                "c_uuid": "dce432d5-9874-4d4e-af63-5163c4deb354"
+            },
+            "redfishIDs": {
+                "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Switches/SW_4f6d",
+                "@odata.type": "#Switch.v1_6_0.Switch",
+                "Id": "SW_4f6d",
+                "Name": "Gen-Z External Switch",
+                "SerialNumber": "0x139b2a604a023450",
+                "UUID": "bd0df500-9b16-4f6d-aaa0-cecd0ce256ee",
+                "Status": {
+                    "State": "Enabled",
+                    "Health": "OK"
+                },
+                "sw_id": "SW_4f6d",
+                "ep_id": "5"
+            },
+            "nodeProperties": {
+                "functionality": {
+                    "EntityType": "Switch",
+                    "EntityRole": "Switch",
+                    "GenZ": {
+                        "GCID": {
+                            "CID": "005",
+                            "SID": "0000"
+                        },
+                        "AccessKey": "0xZZZZ"
+                    },
+                    "minChunkSize": 0,
+                    "maxChunks": 0
+                },
+                "endpoints": {
+                    "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/5",
+                    "@odata.type": "#Endpoint.v1_6_0.Endpoint",
+                    "Id": "5",
+                    "Name": "Switch SW_4f6d",
+                    "Description": "Switch"
+                },
+                "memdomains": [],
+                "memchunks": [],
+                "connections": []
+            },
+            "topology": {
+                "node_ports": {
+                    "0000:005.1": {
+                        "num": "0000:005.1",
+                        "state": "I-Up",
+                        "phy": {
+                            "status": "PHY-Up",
+                            "tx_LWR": 0,
+                            "rx_LWR": 0
+                        },
+                        "peer_port": {
+                            "num": "0000:001.1",
+                            "state": "I-Up",
+                            "AssociatedEndpoints": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/1",
+                            "ConnectedPorts": "/redfish/v1/Systems/SY_4739/FabricAdapters/FA_4739/Ports/1"
+                        },
+                        "redfish_portID": 0
+                    },
+                    "0000:005.4": {
+                        "num": "0000:005.4",
+                        "state": "I-Up",
+                        "phy": {
+                            "status": "PHY-Up",
+                            "tx_LWR": 0,
+                            "rx_LWR": 0
+                        },
+                        "peer_port": {
+                            "num": "0000:003.4",
+                            "state": "I-Up",
+                            "AssociatedEndpoints": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/3",
+                            "ConnectedPorts": "/redfish/v1/Fabrics/GenZ4b0a/Switches/SW_4fb0/Ports/2"
+                        },
+                        "redfish_portID": 1
+                    },
+                    "0000:005.2": {
+                        "num": "0000:005.2",
+                        "state": "I-Up",
+                        "phy": {
+                            "status": "PHY-Up",
+                            "tx_LWR": 0,
+                            "rx_LWR": 0
+                        },
+                        "peer_port": {
+                            "num": "0000:006.0",
+                            "state": "I-Up",
+                            "AssociatedEndpoints": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/6",
+                            "ConnectedPorts": "/redfish/v1/Chassis/GenZ4b0a/MediaControllers/MC_407a/Ports/0"
+                        },
+                        "redfish_portID": 2
+                    }
+                }
+            }
+        },
+        "b8344413-91ce-407a-b1ca-d231708c084c": {
+            "zephyrNodeIDs": {
+                "instance_uuid": "b8344413-91ce-407a-b1ca-d231708c084c",
+                "cclass": 2,
+                "mgr_uuid": "e770469d-fa04-4afc-b9e6-762c8fe782ee",
+                "gcids": [
+                    "0000:006"
+                ],
+                "fru_uuid": "00000000-0000-0000-0000-000000000000",
+                "max_data": 68719476736,
+                "max_iface": 4,
+                "cstate": "C-Up",
+                "id": "859be62c-b435-49fe-bf18-c2ac4a50f9c5:0x014be7a11431e285",
+                "node_index": "6",
+                "md_index": "4",
+                "rsp_page_grid_ps": 25,
+                "c_uuid": "859be62c-b435-49fe-bf18-c2ac4a50f9c5"
+            },
+            "redfishIDs": {
+                "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MediaControllers/MC_407a",
+                "@odata.type": "#MediaController.v1_2_0.MediaController",
+                "Id": "MC_407a",
+                "Name": "Media Controller",
+                "MediaControllerType": "Memory",
+                "SerialNumber": "0x014be7a11431e285",
+                "UUID": "b8344413-91ce-407a-b1ca-d231708c084c",
+                "Status": {
+                    "State": "Enabled",
+                    "Health": "OK"
+                },
+                "mc_id": "MC_407a",
+                "ep_id": "6"
+            },
+            "nodeProperties": {
+                "functionality": {
+                    "EntityType": "MediaController",
+                    "EntityRole": "Target",
+                    "GenZ": {
+                        "GCID": {
+                            "CID": "006",
+                            "SID": "0000"
+                        },
+                        "AccessKey": "0xZZZZZZZ"
+                    },
+                    "minChunkSize": 33554432,
+                    "maxChunks": 2048
+                },
+                "endpoints": {
+                    "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/6",
+                    "@odata.type": "#Endpoint.v1_6_0.Endpoint",
+                    "Id": "6",
+                    "Name": "MediaController MC_407a",
+                    "Description": "Fabric Attached Memory Media Controller"
+                },
+                "memdomains": [
+                    {
+                        "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MemoryDomains/4"
+                    }
+                ],
+                "memchunks": [],
+                "connections": []
+            },
+            "topology": {
+                "node_ports": {
+                    "0000:006.0": {
+                        "num": "0000:006.0",
+                        "state": "I-Up",
+                        "phy": {
+                            "status": "PHY-Up",
+                            "tx_LWR": 0,
+                            "rx_LWR": 0
+                        },
+                        "peer_port": {
+                            "num": "0000:005.2",
+                            "state": "I-Up",
+                            "ConnectedPorts": "/redfish/v1/Fabrics/GenZ4b0a/Switches/SW_4f6d/Ports/2"
+                        },
+                        "redfish_portID": 0
+                    }
+                }
+            }
+        }
+    },
+    "endpt_xref": {
+        "1": "c702c5f1-0345-4739-8807-fa80054230d0",
+        "2": "f9c62e38-5e3f-478d-b2e6-d9be7c4ee261",
+        "3": "36a4cd08-91a6-4fb0-9e47-abac52af6fea",
+        "4": "aca9378c-530d-479c-acb0-f081083a5d44",
+        "5": "bd0df500-9b16-4f6d-aaa0-cecd0ce256ee",
+        "6": "b8344413-91ce-407a-b1ca-d231708c084c"
+    },
+    "mDomain_xref": {
+        "1": "c702c5f1-0345-4739-8807-fa80054230d0",
+        "2": "f9c62e38-5e3f-478d-b2e6-d9be7c4ee261",
+        "3": "aca9378c-530d-479c-acb0-f081083a5d44",
+        "4": "b8344413-91ce-407a-b1ca-d231708c084c"
+    },
+    "GCID_xref": {
+        "0000:001": "c702c5f1-0345-4739-8807-fa80054230d0",
+        "0000:002": "f9c62e38-5e3f-478d-b2e6-d9be7c4ee261",
+        "0000:003": "36a4cd08-91a6-4fb0-9e47-abac52af6fea",
+        "0000:004": "aca9378c-530d-479c-acb0-f081083a5d44",
+        "0000:005": "bd0df500-9b16-4f6d-aaa0-cecd0ce256ee",
+        "0000:006": "b8344413-91ce-407a-b1ca-d231708c084c"
+    }
+}

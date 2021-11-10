@@ -137,7 +137,7 @@ echo "Applying Agent additions..."
 cp -r -f $BASE_DIR/api_emulator $WORK_DIR/
 cp  -f $BASE_DIR/emulator-config.json $WORK_DIR/
 cp  -f $BASE_DIR/emulator.py $WORK_DIR
-cp -f ~/myPython/agentDB.json $WORK_DIR
+cp -f $BASE_DIR/agentDB.json $WORK_DIR
 
 echo "Add mockups from OFMF mockup repository..."
 rm -rf $WORK_DIR/Resources
