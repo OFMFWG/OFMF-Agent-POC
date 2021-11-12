@@ -1,0 +1,14 @@
+{
+	"@odata.id": "INVALID",
+	"class_uuid": "f147276b-c2c1-431e-91af-3031d0039768",
+	"instance_uuid": "???",
+	"flags": 0,
+	"class": 2,
+	"type":    1,
+	"start":   0,
+	"length":  12884901888,
+	"ro_rkey": 0,
+	"rw_rkey": 0,
+	"consumers":{
+	}
+}

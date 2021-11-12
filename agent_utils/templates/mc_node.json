@@ -1,0 +1,64 @@
+{
+  "zephyrNodeIDs":{
+  
+      "instance_uuid": "INVALID",
+      "cclass": 999,
+      "mgr_uuid": "INVALID",
+      "gcids": [
+        "ZZZZ:ZZZ"
+      ],
+      "fru_uuid": "00000000-0000-0000-0000-000000000000",
+      "max_data": 999999999999,
+      "max_iface": 999,
+      "cstate": "C-CFG",
+      "id": "INVALID"
+  },
+  "redfishIDs":{
+
+    "@odata.id": "/INVALID/",
+    "@odata.type": "#MediaController.v1_2_0.MediaController",
+    "Id": "INVALID",
+    "Name": "Media Controller",
+    "MediaControllerType": "Memory",
+    "SerialNumber": "INVALID",
+    "UUID": "INVALID",
+    "Status": {
+	    "State": "Disabled",
+	    "Health": "OK"
+    }
+  },
+  "nodeProperties":{
+    "functionality": 
+	 {
+        "EntityType": "MediaController",
+        "EntityRole": "Target",
+        "GenZ": {
+            "GCID": {
+                "CID": "0xZZZ",
+                "SID": "0xZZZZ"
+             },
+            "AccessKey": "0xZZZZZZZ"
+          },
+	"minChunkSize": 0,
+	"maxChunks": 0
+    	},
+    "endpoints":  {
+        "@odata.id": "/INVALID/",
+        "@odata.type": "#Endpoint.v1_6_0.Endpoint",
+        "Id": "INVALID",
+        "Name": "INVALID",
+        "Description": "Fabric Attached Memory Media Controller"
+      }, 
+    "memdomains": [
+       ],	
+    "memchunks": [ 
+       ], 
+    "connections": [
+            ]
+  },
+  "topology": {
+    "node_ports":  {
+   }
+  }
+}
+
