@@ -47,6 +47,10 @@ To run the two emulators and test them:
 		However, once an emulator is initialized and running, 
 		the mockups directory is no longer used, so things don't get 
 		messed up if you start up each emulator in series.
+******   steps 5-13 should no longer be required:  The Agent emulator does this
+******   as part of its initialization, provided the emulator-config.json file
+******   has the the OFMFCONFIG flag set to 'Enable'.  Anything else should cause the 
+******   Agent emulator to skip overwriting the initial config....  
 
 5)	Once the two emulators are running, 
 	a.	change directory to newOFMF-Agent-POC/agent_POSTs directory
@@ -72,6 +76,15 @@ To run the two emulators and test them:
 	d.	After these POSTs finish, the OFMF_POC emulator will have 
 		the same default initial configuration as the 
 		Agent emulator fires up with.
+
+
+********	the following two steps will POST example memory chunks 
+********	and a sample connection to the OFMF emulator, and can be done
+*******		using myPoster utility as described herein.
+********	OR, a GUI or shell script can send these POST file contents 
+*******		to the OFMF layer 
+
+
 14)	>>> runPOSTer(“./postFilechunks.json”, “HTTP://192.168.11.118:5000)
 	a.	This script will post 4 memory chunks to the OFMF_POC emulator, 
 		one for each of the four memory sources in the default topology.
@@ -104,8 +117,22 @@ To run the two emulators and test them:
 	the experimenter to stop at step 14 and create their own memory chunk 
 	and connection POSTs.  
 
+I'm working on DELETEs next.
+
 
 VERY IMPORTANT NOTES:
+
+	0)	Both emulators can be terminated using Ctl-C in the shell from which
+		they were invoked.  As long as the Agent emulator is restarted after
+		the OFMF_POC emulator AND zephyr (if zephyr is in use), it will again
+		re-init the OFMF resource tree.
+	1)	I recommend removing the git clone' statements from your setup.sh
+		script after you have a valid WORK_DIR built, or at least checking 
+		for github access before you wipe out the WORK_DIRs.  Better is to
+		keep a golden mockups clone and a golden redfish-api-emulator clone.
+		The standard setup.sh scripts require github access to properly install
+		and invoke the two emulators.
+	
 	A)	The OFMF_POC emulator can be (and MUST be) reset to wipe out 
 		its initial configuration (step 12), but the Agent 
 		(running agent_test branch) CANNOT. 
