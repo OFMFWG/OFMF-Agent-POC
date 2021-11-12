@@ -29,8 +29,10 @@
 #
 #f_connections_api.py
 
+import g
 import json, os
 import shutil
+import requests
 
 import traceback
 import logging
@@ -76,10 +78,9 @@ class FabricsConnectionsAPI(Resource):
         return get_json_data (path)
 
     # HTTP POST
-    # - Create the resource (since URI variables are available)
-    # - Update the members and members.id lists
-    # - Attach the APIs of subordinate resources (do this only once)
-    # - Finally, create an instance of the subordiante resources
+    # - Agent parses the connection and matches the connected resources
+    #       to a producer, a consumer, and the proper memory chunk 
+    #   and sends the add_resource request to the Zephyr fabric manager
     def post(self, fabric, f_connection):
         logging.info('FabricsConnectionsAPI POST called')
         path = create_path(self.root, self.fabrics, fabric, self.f_connections, f_connection)
@@ -87,6 +88,7 @@ class FabricsConnectionsAPI(Resource):
 
         try:
             global config
+            #  config will be the connection request from OFMF
             if request.data: 
                 config= json.loads(request.data)
             
@@ -98,7 +100,9 @@ class FabricsConnectionsAPI(Resource):
             fab_uuid = agentDB["fabricIDs"]["fab_uuid"]
             connID = config["Id"] 
             # only 1 memory chunk per connection allowed in PoC
+            # find the MemoryChunk path
             tmpStr=config["MemoryChunkInfo"][0]["MemoryChunk"]["@odata.id"]
+            # another hack 
             md_id = tmpStr.split("/")[6]
             mc_id= tmpStr.split("/")[-1]
             connURI = config["@odata.id"]
@@ -109,11 +113,13 @@ class FabricsConnectionsAPI(Resource):
             producers= copy.deepcopy(config["Links"]["TargetEndpoints"])
             consumers= copy.deepcopy(config["Links"]["InitiatorEndpoints"])
             print("consumers ",consumers)
+            # for POC should only be one memory chunk but copy all just in case
             chunks= copy.deepcopy(config["MemoryChunkInfo"])
             print(chunks)
 
             # each producer(memory target) must have its own add_resource() call
             for p_index, p_item in enumerate(producers):
+                # p_item is the list of producer (target) endpoints
                 PchunkDetails = []
                 p_nodeID=""
                 p_endpt= p_item["@odata.id"].split("/")[-1]
@@ -124,27 +130,30 @@ class FabricsConnectionsAPI(Resource):
                 print("p_cuuid ",p_cuuid)
                 # get producer's memory resources which are used in this connection
                 # all memoryChunks must be from same producer 
-                p_Chunks=[]
+                # but could be more than one chunk available from the same producer
+                p_Chunks=[]     # hence p_Chunks is a list
                 p_Chunks=copy.deepcopy(agentDB["nodes"][p_nodeID]\
                         ["nodeProperties"]["memchunks"])
                 print("p_Chunks ",json.dumps(p_Chunks,indent=4))
-                # search all chunks mentioned in connection, for link to this producer
+                # search all chunks mentioned in connection, for the link to this producer
                 for con_ch_index, con_ch_item in enumerate(chunks):
                     print("connector chunk ", json.dumps(con_ch_item, indent=4))
                     conn_chunkURI=con_ch_item["MemoryChunk"]["@odata.id"]
                     print("connector chunk uri ", conn_chunkURI)
+                    p_chunk_index = 0
                     for index, item in enumerate(p_Chunks):
                         p_chunkURI=p_Chunks[index]["@odata.id"]
                         print("producer chunk URI ",p_chunkURI)
                         if p_chunkURI == conn_chunkURI :
                             PchunkDetails.append(copy.deepcopy(p_Chunks[index]))
+                            p_chunk_index = index  # have to save this for later
 
-                #  now list all consumers of these memory chunks from this producer
                 if len(PchunkDetails) == 0:
                     print("producer not found ")
                     resp = 404
                     return resp
 
+                #  now list all consumers of these memory chunks from this producer
                 consumers_cuuid=[]
                 for c_index, c_item in enumerate(consumers):
                     print("consumer check index ",c_index)
@@ -163,7 +172,7 @@ class FabricsConnectionsAPI(Resource):
 
                 
                 # ready to stuff the add_resource() template
-                # right now, all producer memory use the same flags, class, and class_uuid
+                # right now, all producer memory uses the same flags, class, and class_uuid
                 class_uuid=PchunkDetails[0]["class_uuid"]
                 flags_int=PchunkDetails[0]["flags"]
                 class_int=PchunkDetails[0]["class"]
@@ -196,9 +205,41 @@ class FabricsConnectionsAPI(Resource):
                     json.dump(zephyr_body, jdata, indent=4)
                     jdata.close()
                 zephyrCMD_count = zephyrCMD_count+1
+
+                zAssigned_uuid = 'XXX'
+                #  send the Zephyr command 
+                #  we only send one chunk per connection, so only 1 memory resource involved
+                if not "None" in g.ZEPHYR :
+                    # try to reach Zephyr as defined
+                    zephyr_response={}
+                    zephyr_UIR = g.ZEPHYR
+                    postID="/api/v1/device/add"
+                    print(zephyr_UIR)
+                    headers = {'Content-type':'application/json', 'Accept':'text/plain'}
+                    r = requests.post(zephyr_UIR+postID, data = json.dumps(zephyr_body),\
+                            headers=headers)
+                    print("fake try of Zephyr")
+                    zephyr_response = r.json()
+                    print(json.dumps(zephyr_response, indent = 4))
+                    zAssigned_uuid = zephyr_response["instance_uuids"][0]
+
+                else:
+                    # no Zephyr, 
+                    print("could not find zephyr")
+                    
+
+
+                # if successful;
+                #  retrieve the instance_uuid which Zephyr assigned to the chunk
+                agentDB["nodes"][p_nodeID]["nodeProperties"]\
+                        ["memchunks"][p_chunk_index]["instance_uuid"]= zAssigned_uuid
+
+
                 #  add the connection to the producer's node data
                 agentDB["nodes"][p_nodeID]["nodeProperties"]\
                         ["connections"].append(tmpConn)
+
+
 
             # write the DB back to file
             with open(AGENT_DB_FILE, "w") as file_json:
@@ -213,38 +254,7 @@ class FabricsConnectionsAPI(Resource):
         logging.info('FabricsConnectionsAPI POST exit')
         return resp
 
-    '''
-    # HTTP POST
-    # - Create the resource (since URI variables are available)
-    # - Update the members and members.id lists
-    # - Attach the APIs of subordinate resources (do this only once)
-    # - Finally, create an instance of the subordiante resources
-    def post(self, fabric, f_connection):
-        logging.info('FabricsConnectionsAPI POST called')
-        path = create_path(self.root, self.fabrics, fabric, self.f_connections, f_connection)
-        collection_path = os.path.join(self.root, self.fabrics, fabric, self.f_connections, 'index.json')
-
-        # Check if collection exists:
-        if not os.path.exists(collection_path):
-            FabricsConnectionsCollectionAPI.post (self, fabric)
-
-        if f_connection in members:
-            resp = 404
-            return resp
-        try:
-            global config
-            wildcards = {'f_id':fabric, 'c_id': f_connection, 'rb': g.rest_base}
-            config=get_Connections_instance(wildcards)
-            config = create_and_patch_object (config, members, member_ids, path, collection_path)
-            resp = config, 200
-
-        except Exception:
-            traceback.print_exc()
-            resp = INTERNAL_ERROR
-        logging.info('FabricsConnectionsAPI POST exit')
-        return resp
-    '''
-
+   
 	# HTTP PATCH
     def patch(self, fabric, f_connection):
         path = os.path.join(self.root, self.fabrics, fabric, self.f_connections, f_connection, 'index.json')

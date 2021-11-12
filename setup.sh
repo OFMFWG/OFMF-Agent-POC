@@ -138,6 +138,8 @@ cp -r -f $BASE_DIR/api_emulator $WORK_DIR/
 cp  -f $BASE_DIR/emulator-config.json $WORK_DIR/
 cp  -f $BASE_DIR/emulator.py $WORK_DIR
 cp -f $BASE_DIR/agentDB.json $WORK_DIR
+cp -r -f $BASE_DIR/agent_utils $WORK_DIR/
+mkdir $WORK_DIR/agent_POSTs
 
 echo "Add mockups from OFMF mockup repository..."
 rm -rf $WORK_DIR/Resources

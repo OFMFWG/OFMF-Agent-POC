@@ -69,8 +69,13 @@ SPEC = None
 MODE = None
 MOCKUPFOLDERS = None
 STATIC = None
+
+#  Other entities to converse with
 ZEPHYRPORT = None
 ZEPHYRURI = None
+OFMFPORT = None
+OFMFPORT = None
+OFMFCONFIG = None
 
 CONFIG = 'emulator-config.json'
 
@@ -115,8 +120,25 @@ with open(CONFIG, 'r') as f:
     except:
         pass
 
+    try:
+        OFMFCONFIG = config['OFMFCONFIG']
+    except:
+        pass
 
-#g.ZEPHYR = 'http://' + ZEPHYRURI + ':' + ZEPHYRPORT
+    try:
+        OFMFURI = config['OFMFURI']
+    except:
+        pass
+
+    try:
+        OFMFPORT = config['OFMFPORT']
+    except:
+        pass
+
+
+g.ZEPHYR = 'http://' + ZEPHYRURI + ':' + ZEPHYRPORT
+g.OFMF = 'http://' + OFMFURI + ':' + OFMFPORT
+g.OFMFCONFIG = OFMFCONFIG
 
 
 if(MODE=='Cloud'):
@@ -208,6 +230,8 @@ def output_json(data, code, headers=None):
 class RedfishAPI(Resource):
     def __init__(self):
         # Dictionary of actions and their method
+        print("Init of RedfishAPI --------------------------------- here")
+
         self.actions = {
             'CreateGenericComputerSystem': self.create_system,
             'ApplySettings':self.update_system,
@@ -385,6 +409,28 @@ def reset():
         resp = error_response('Internal Server Error', 500, True)
     return resp
 
+# If DELETE /redfish/v1/resettopology, then reload topology from Zephyr
+#
+@g.app.route('/redfish/v1/resettopology/', methods=['DELETE'])
+def resettopology():
+    try:
+        if os.path.exists('agent_utils/zParser.py'):
+            #shutil.rmtree('Resources')
+            print("----- abandon default config -----------")
+            print("get new topology")
+            import agent_utils.zParser
+            from agent_utils.zParser import zConfigParser
+            zConfigParser("agent_utils/soc3-4-topo.json")
+            print("called zConfigParser...")
+
+        #shutil.copytree('templates/emptyserviceroot', 'Resources')
+        resp = error_response('Agent Topology Reset.', 204, True)
+    except Exception:
+        traceback.print_exc()
+        resp = error_response('Internal Server Error', 500, True)
+    return resp
+
+#
 
 # If DELETE /redfish/v1/resetclear, then delete all Resources and replace with "empty" mockup
 #
@@ -488,6 +534,7 @@ g.api.add_resource(RedfishAPI, '/redfish/v1/', '/redfish/v1/<path:path>')
 def startup():
 
     init_resource_manager()
+    resettopology()
 
 #
 # Main method
@@ -554,8 +601,8 @@ def main():
     if(MODE=='Cloud'):
         argparser.add_argument('-port', type=int, default=port, help='Port to run the emulator on. Port defined by Foundry')
     elif(MODE=='Local'):
-        argparser.add_argument('-port', type=int, default=5000, help='Port to run the emulator on. Default is 5000')
-        print (' * Redfish endpoint at localhost:5000')
+        argparser.add_argument('-port', type=int, default=5050, help='Port to run the emulator on. Default is 5050')
+        print (' * Redfish endpoint at localhost:5050')
 
     argparser.add_argument('-debug', action='store_true', default=False,
                            help='Run the emulator in debug mode. Note that if you'

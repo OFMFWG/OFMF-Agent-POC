@@ -125,7 +125,7 @@ class MDChunksAPI(Resource):
             # create the rest of the mem chunk details for agentDB
             ro_rkey = 0  
             rw_rkey = 0
-            instance_uuid = "???"     # not used in PoC
+            instance_uuid = "???"     # real value comes from Zephyr at connection
 
             tmpMemChunk["@odata.id"] = config["@odata.id"]
             tmpMemChunk["class_uuid"] = class_uuid

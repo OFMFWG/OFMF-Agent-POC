@@ -3,6 +3,8 @@
 
 import json
 import copy
+import g
+import requests
 
 #import agent_utils
 #from agent_utils import *
@@ -65,6 +67,33 @@ _cClassLUT = \
 
 }
 
+def getZephyrConfig(defaultFile):
+
+    #  see if Zephyr is configured, and available
+    if not "None" in g.ZEPHYR :
+        # try to reach Zephyr as defined
+        zephyr_UIR = g.ZEPHYR
+        postID="/fabric/topology"
+        print(zephyr_UIR)
+        headers = {'Content-type':'application/json', 'Accept':'text/plain'}
+        headers = {'Content-type':'text/plain' }
+        print("request is ", zephyr_UIR+postID)
+        r = requests.get(zephyr_UIR+postID, headers=headers)
+        #r = requests.get(zephyr_UIR+postID )
+        print(r.json)
+        data = r.json()
+        print("using Zephyr config")
+    else:
+        # no Zephyr, use default
+        print("using default config")
+        with open(defaultFile,"r") as file_json:
+            data= json.load(file_json)
+        file_json.close()
+    
+
+    return data
+
+
 def updateZephyrNodeIDs(znodeConfig,agentConfig):
 
     localNodeID = znodeConfig["instance_uuid"]
@@ -115,6 +144,7 @@ def updateZephyrNodeIDs(znodeConfig,agentConfig):
 
 
 def updateAgentNodePorts(localPortConfig,peerPortConfig,agentConfig,extras):
+    print(json.dumps(localPortConfig, indent = 4))
     localNodeID=next(iter(localPortConfig))
     peerNodeID=next(iter(peerPortConfig))
     delPortNum=""
@@ -320,10 +350,13 @@ def createFA_IDs(nodeID,allAgentNodes):
     tmpStr=""
     rb = allAgentNodes["fabricIDs"]["rb"]
     f_id = allAgentNodes["fabricIDs"]["f_id"]
+    node_index=allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["node_index"]
     
     tmpList = nodeID.split("-")
-    s_id = 'SY_'+ tmpList[2]    #use field 2 of instance_uuid for System id
-    fa_id= 'FA_' +tmpList[2]    #use same field for FabricAdapter id
+    #s_id = 'SY_'+ tmpList[2]    #use field 2 of instance_uuid for System id
+    #fa_id= 'FA_' +tmpList[2]    #use same field for FabricAdapter id
+    s_id = 'SY_'+ node_index
+    fa_id= 'FA_'+ node_index
 
 
     allAgentNodes["nodes"][nodeID]["redfishIDs"]["s_id"] = s_id
@@ -352,10 +385,12 @@ def createMC_IDs(nodeID,allAgentNodes):
     rb = allAgentNodes["fabricIDs"]["rb"]
     ch_id=allAgentNodes["fabricIDs"]["ch_id"]
     f_id = allAgentNodes["fabricIDs"]["f_id"]
+    node_index=allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["node_index"]
     
     tmpList = nodeID.split("-") #nodeID is the instance_uuid
     #s_id = 'SY_'+ tmpList[2]    #use field 2 of instance_uuid for System id
-    mc_id= 'MC_' +tmpList[2]    #use field 2 for MediaController id
+    #mc_id= 'MC_' +tmpList[2]    #use field 2 for MediaController id
+    mc_id= 'MC_' +node_index
 
 
 
@@ -382,9 +417,11 @@ def createSW_IDs(nodeID,allAgentNodes):
     tmpStr=""
     rb = allAgentNodes["fabricIDs"]["rb"]
     f_id = allAgentNodes["fabricIDs"]["f_id"]
+    node_index=allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["node_index"]
     
     tmpList = nodeID.split("-")
-    sw_id = 'SW_'+ tmpList[2]    #use field 2 of instance_uuid for System id
+    #sw_id = 'SW_'+ tmpList[2]    #use field 2 of instance_uuid for System id
+    sw_id = 'SW_'+ node_index
 
 
     allAgentNodes["nodes"][nodeID]["redfishIDs"]["sw_id"] = sw_id
@@ -981,6 +1018,38 @@ def createRootCollections():
 
     return
 
+
+def post_to_OFMF(allPostFiles):
+    headers = {'Content-type':'application/json', 'Accept':'text/plain'}
+
+    OFMF_URI = g.OFMF
+    if g.OFMFCONFIG == 'Enable':
+        print("POSTing configuration to ", OFMF_URI)
+        # first reset the OFMF Resources
+        postID="/redfish/v1/resetclear"
+        print(OFMF_URI+postID)
+        r = requests.delete(OFMF_URI+postID, headers=headers)
+        print(r)
+        print(r.text)
+
+        # now POST all the initial configuration files
+        for index, postName in enumerate(allPostFiles):
+            print("POST file is ",postName)
+            postFile = postName
+            with open(postFile,"r") as file_json:
+                data = json.load(file_json)
+            file_json.close()
+            postID=data["@odata.id"]
+            print(postID)
+            print(data)
+            r = requests.post(OFMF_URI+postID, data=json.dumps(data), headers=headers)
+            print(r)
+            print(r.text)
+
+
+
+    return
+
 def zConfigParser(myfile):
     print()
     print("---------------- runParser ------------")
@@ -991,72 +1060,74 @@ def zConfigParser(myfile):
 
     global allPostFiles 
     allPostFiles =[]
+    data= {}
 
-    with open(myfile,"r") as file_json:
-        data = json.load(file_json)
-    file_json.close()
-
+    # see if Zephyr has a config file for us
+    data = getZephyrConfig(myfile)
+    print("returned config file is ",json.dumps(data, indent=4))
     nodeCount=0
     memDomainCount=0
     daxCount=0
 
-    for k, v in data.items():
-        print("processing key ",k, " -----------------")
-        if k == "graph":
-            allAgentNodes["fabricIDs"] = copy.deepcopy(v)
-            allAgentNodes["fabricIDs"]["@odata.id"] = "INVALID"
+    print("processing Graph -------------------")
+    
+    allAgentNodes["fabricIDs"] = copy.deepcopy(data["graph"])
+    allAgentNodes["fabricIDs"]["@odata.id"] = "INVALID"
+    allAgentNodes["fabricIDs"]["nodeCount"] = nodeCount
+    allAgentNodes["fabricIDs"]["daxCount"] = daxCount
+
+    print("processing Nodes -------------------")
+    tmpNodes = copy.deepcopy(data["nodes"])
+    for index, item in enumerate(tmpNodes):
+
+        #use instance_uuid as the nodeID for agentDB
+        tmpNodeID=item["instance_uuid"]  
+        tmpNodeCclass = str(item["cclass"])
+        print(tmpNodeCclass)
+        print(tmpNodeID)
+        print("class ",cClassDecoder[tmpNodeCclass]["genZtype"])
+        agentTMPL = cClassDecoder[tmpNodeCclass]["agentTemplate"]
+        with open(agentTMPL) as file_json:
+            agentNodeTemplate = json.load(file_json)
+        file_json.close()
+        # if new node, add it to agent DB, if exists, update it
+        if tmpNodeID in allAgentNodes["nodes"]:
+            print("duplicate instance_uuid?", tmpNodeID)
+            #update existing entry with actual values from zephry 
+            #not really working and tested, just a placeholder
+            #updateZephyrNodeIDs(item,allAgentNodes)
+        else:
+
+            print("adding new node")
+            nodeCount = nodeCount+1  # adjust node count, which equals endpoint count
             allAgentNodes["fabricIDs"]["nodeCount"] = nodeCount
-            allAgentNodes["fabricIDs"]["daxCount"] = daxCount
-        if k == "nodes": 
-            for index, item in enumerate(v):
-                #use instance_uuid as the nodeID for agentDB
-                tmpNodeID=item["instance_uuid"]  
-                tmpNodeCclass = str(item["cclass"])
-                print(tmpNodeCclass)
-                print(tmpNodeID)
-                print("class ",cClassDecoder[tmpNodeCclass]["genZtype"])
-
-                agentTMPL = cClassDecoder[tmpNodeCclass]["agentTemplate"]
-                with open(agentTMPL) as file_json:
-                    agentNodeTemplate = json.load(file_json)
-                file_json.close()
-                # if new node, add it to agent DB, if exists, update it
-                if tmpNodeID in allAgentNodes["nodes"]:
-                    print("duplicate instance_uuid?", tmpNodeID)
-                    #update existing entry with actual values from zephry 
-                    #not really working and tested, just a placeholder
-                    #updateZephyrNodeIDs(item,allAgentNodes)
-                else:
-                    print("adding new node")
-                    nodeCount = nodeCount+1  # adjust node count, which equals endpoint count
-                    allAgentNodes["fabricIDs"]["nodeCount"] = nodeCount
-                    allAgentNodes["endpt_xref"][str(nodeCount)] = tmpNodeID
-
-                    allAgentNodes["nodes"][tmpNodeID] = copy.deepcopy(agentNodeTemplate)
-                    allAgentNodes["nodes"][tmpNodeID]["nodeProperties"]["endpoints"]["Id"] \
+            allAgentNodes["endpt_xref"][str(nodeCount)] = tmpNodeID
+            allAgentNodes["nodes"][tmpNodeID] = copy.deepcopy(agentNodeTemplate)
+            allAgentNodes["nodes"][tmpNodeID]["nodeProperties"]["endpoints"]["Id"] \
                             = str(nodeCount)
-                    allAgentNodes["nodes"][tmpNodeID]["zephyrNodeIDs"]\
+            allAgentNodes["nodes"][tmpNodeID]["zephyrNodeIDs"]\
                                 ["node_index"] = str(nodeCount)
-                    maxMem=item["max_data"]  # extract memory capacity of node
-                    if maxMem>0:
-                        memDomainCount = memDomainCount + 1  # need another mem domain
-                        allAgentNodes["fabricIDs"]["memDomainCount"] = memDomainCount
-                        allAgentNodes["nodes"][tmpNodeID]["zephyrNodeIDs"]\
-                                ["md_index"] = str(memDomainCount)
-                        allAgentNodes["mDomain_xref"][str(memDomainCount)] = tmpNodeID
-                    
-                    #update template with actual values from zephyr 
-                    updateZephyrNodeIDs(item,allAgentNodes)
+            maxMem=item["max_data"]  # extract memory capacity of node
+            if maxMem>0:
 
-        if k == "links":
-            print()
-            print("now for links")
-            for index, item in enumerate(v):
-                print("link ", index)  #links is a list of link objects
-                parseZephyrLink(item,allAgentNodes)  #'item' is a zephyr link object
+                memDomainCount = memDomainCount + 1  # need another mem domain
+                allAgentNodes["fabricIDs"]["memDomainCount"] = memDomainCount
+                allAgentNodes["nodes"][tmpNodeID]["zephyrNodeIDs"]\
+                                ["md_index"] = str(memDomainCount)
+                allAgentNodes["mDomain_xref"][str(memDomainCount)] = tmpNodeID
+                    
+            updateZephyrNodeIDs(item,allAgentNodes)
+
+    #  now for Links
+    tmpLinks = copy.deepcopy(data["links"])
+    print()
+    print("now for links")
+    for index, item in enumerate(tmpLinks):
+        print("link ", index)  #links is a list of link objects
+        parseZephyrLink(item,allAgentNodes)  #'item' is a zephyr link object
+    print()
     
     #done with parsing networkX configuration and building initial agent database
-
     # now need to create Redfish model of the configuration
     # create the root Chassis, Fabrics, Systems collections
     createRootCollections()
@@ -1071,13 +1142,16 @@ def zConfigParser(myfile):
         uploadChassis(allAgentNodes,memDomainCount)
     # create all the Redfish ID's we need 
     createRedfishIDs(allAgentNodes,cClassDecoder)
-    # POST the node instances 
+    # create the node instances for POSTing
     postRedfishNodes(allAgentNodes,cClassDecoder) 
-    # create and POST the associated memory structures
+    # create the associated memory structures but don't POST the memory chunks
     createMemChunkIDs(allAgentNodes)
-    # create and POST the default connections
+    # in POC, don't create the default connections
     #createDefaultConnections(allAgentNodes)
-    
+
+    # do the actual posts to OFMF, if it is running
+    #  allPostFiles[] contains only the files to be posted, in the correct order!
+    post_to_OFMF(allPostFiles)
 
     # put the agent data base in a file
     with open("./agentDB.json","w") as jdata:
