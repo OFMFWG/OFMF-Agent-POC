@@ -1,0 +1,22 @@
+{
+    "@Redfish.Copyright": "Copyright 2021 OpenFabrics Alliance. All rights reserved.",
+    "@odata.id": "/redfish/v1/Systems/SY_1/FabricAdapters/FA_1/Ports/0",
+    "@odata.type": "Port.v1_4_0.Port",
+    "ActiveWidth": 4,
+    "Description": "Fabric Adapter port 0",
+    "Id": "0",
+    "LinkNetworkTechnology": "GenZ",
+    "LinkState": "Enabled",
+    "LinkStatus": "LinkUp",
+    "Links": {
+        "ConnectedPorts": [
+            {
+                "@odata.id": "/redfish/v1/Systems/SY_2/FabricAdapters/FA_2/Ports/0"
+            }
+        ]
+    },
+    "MaxSpeedGbps": 56,
+    "Name": "Fabric Adapter Port 0",
+    "PortId": "0",
+    "SignalDetected": "true"
+}

@@ -1,0 +1,30 @@
+{
+    "@Redfish.Copyright": "Copyright 2014-2021 SNIA. All rights reserved.",
+    "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MediaControllers/MC_4",
+    "@odata.type": "#MediaController.v1_6_0.MediaController",
+    "Description": "Media Controller",
+    "GenZ": {
+        "gcid": "0000:004",
+        "max_data": 68719476736,
+        "c_uuid": "859be62c-b435-49fe-bf18-c2ac4a50f9c5",
+        "minChunkSize": 33554432,
+        "maxChunks": 2048
+    },
+    "Id": "MC_4",
+    "Links": {
+        "Endpoints": [
+            "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/4"
+        ]
+    },
+    "Model": "zMM-xxx",
+    "Name": "Media Controller MC_4",
+    "Ports": {
+        "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MediaControllers/MC_4/Ports"
+    },
+    "SerialNumber": "0x014be7a114504305",
+    "Status": {
+        "Health": "OK",
+        "State": "Enabled"
+    },
+    "UUID": "aca9378c-530d-479c-acb0-f081083a5d44"
+}

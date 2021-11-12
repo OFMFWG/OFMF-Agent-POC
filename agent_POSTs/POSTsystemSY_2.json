@@ -1,0 +1,20 @@
+{
+    "@odata.id": "/redfish/v1/Systems/SY_2",
+    "@odata.type": "#ComputerSystem.v1_3_0.ComputerSystem",
+    "Id": "SY_2",
+    "Name": "Gen-Z PoC SoC",
+    "SystemType": "Physical",
+    "Manufacturer": "Manufacturer Name",
+    "Model": "Model Name",
+    "SerialNumber": "UNKNOWN",
+    "Description": "Description of server",
+    "UUID": "00000000-0000-0000-0000-000000000000",
+    "Status": {
+        "State": "Enabled",
+        "Health": "OK",
+        "HealthRollup": "OK"
+    },
+    "FabricAdapters": {
+        "@odata.id": "/redfish/v1/Systems/SY_2/FabricAdapters"
+    }
+}

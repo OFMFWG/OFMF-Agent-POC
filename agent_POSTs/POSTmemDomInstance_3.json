@@ -8,7 +8,7 @@
     "Id": "3",
     "Links": {
         "MediaControllers": {
-            "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MediaControllers/MC_479c"
+            "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MediaControllers/MC_4"
         }
     },
     "MemoryChunks": {

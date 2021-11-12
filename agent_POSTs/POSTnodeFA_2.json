@@ -1,0 +1,30 @@
+{
+    "@Redfish.Copyright": "Copyright 2014-2021 SNIA. All rights reserved.",
+    "@odata.id": "/redfish/v1/Systems/SY_2/FabricAdapters/FA_2",
+    "@odata.type": "#FabricAdapter.v1_2_2.FabricAdapter",
+    "Description": "Fabric Adapter",
+    "GenZ": {
+        "gcid": "0000:002",
+        "max_data": 4294967296,
+        "c_uuid": "e3331770-6648-4def-8100-404d844298d3",
+        "minChunkSize": 2097152,
+        "maxChunks": 2048
+    },
+    "Id": "FA_2",
+    "Links": {
+        "Endpoints": [
+            "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/2"
+        ]
+    },
+    "Model": "Bridge Model X",
+    "Name": "Bridge FA_2",
+    "Ports": {
+        "@odata.id": "/redfish/v1/Systems/SY_2/FabricAdapters/FA_2/Ports"
+    },
+    "SerialNumber": "0x013a4a851d408245",
+    "Status": {
+        "Health": "OK",
+        "State": "Enabled"
+    },
+    "UUID": "f9c62e38-5e3f-478d-b2e6-d9be7c4ee261"
+}

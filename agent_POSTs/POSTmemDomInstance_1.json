@@ -8,7 +8,7 @@
     "Id": "1",
     "Links": {
         "MediaControllers": {
-            "@odata.id": "/redfish/v1/Systems/SY_4739/FabricAdapters/FA_4739"
+            "@odata.id": "/redfish/v1/Systems/SY_1/FabricAdapters/FA_1"
         }
     },
     "MemoryChunks": {

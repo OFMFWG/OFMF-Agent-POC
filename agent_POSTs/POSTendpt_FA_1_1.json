@@ -1,0 +1,31 @@
+{
+    "@Redfish.Copyright": "Copyright 2014-2021 SNIA. All rights reserved.",
+    "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/1",
+    "@odata.type": "#Endpoint.v1_0_0.Endpoint",
+    "ConnectedEntities": [
+        {
+            "EntityLink": {
+                "@odata.id": "/redfish/v1/Systems/SY_1/FabricAdapters/FA_1"
+            },
+            "EntityType": "FabricBridge",
+            "GenZ": {
+                "GCID": {
+                    "CID": "001",
+                    "SID": "0000"
+                },
+                "AccessKey": "0xZZZZ"
+            }
+        }
+    ],
+    "Description": "endpoint for Bridge FA_1",
+    "EndpointProtocol": "GenZ",
+    "Id": "1",
+    "Links": {
+        "Connections": []
+    },
+    "Name": "Bridge FA_1",
+    "Status": {
+        "Health": "OK",
+        "State": "Enabled"
+    }
+}
