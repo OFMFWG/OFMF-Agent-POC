@@ -214,8 +214,45 @@ class MDChunksAPI(Resource):
         #Set path to object, then call delete_object:
         path = create_path(self.root, self.chassis, chassis, self.memory_domains, memory_domain, self.md_chunks, md_chunks)
         base_path = create_path(self.root, self.chassis, chassis, self.memory_domains, memory_domain, self.md_chunks)
-        #return delete_object(path, base_path)
-        return jsonify(200)
+        print("running memoryChunk DELETE ---------------")
+        try:
+            global config
+            #  config will be the connection request from OFMF
+            if request.data: 
+                config= json.loads(request.data)
+            
+            print("memory chunk passed in ", json.dumps(config,indent=4)) 
+            chunkURI = config["@odata.id"]
+
+            #  now find the memory chunk in agentDB file
+            #  brute force:  compare all nodes' chunks to this one
+            #  this will destroy the instance_uuid which Zephyr assigned to this memory
+            
+            for nodeID, nodeDetails in agentDB["nodes"].items():
+                # walk through all connections to each node
+                for index, chunkItem in enumerate(nodeDetails\
+                            ["nodeProperties"]["memchunks"]):
+                    if chunkItem["@odata.id"]==chunkURI:
+                    #  Delete this list entry
+                        nodeDetails["nodeProperties"]["memchunks"].pop(index)
+                        print("deleting a memchunk reference ", nodeID, " ", chunkItem)
+
+
+            # write the DB back to file
+
+            with open(AGENT_DB_FILE, "w") as file_json:
+                json.dump(agentDB,file_json, indent=4)
+            file_json.close()
+
+            print("returning DELETE request to OFMF ",json.dumps(config, indent = 4))
+            resp = config, 200
+
+        except Exception:
+            traceback.print_exc()
+            resp = INTERNAL_ERROR
+        logging.info('MemoryChunks POST exit')
+
+        return resp
 
 
 # MemoryDomains Collection API

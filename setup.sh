@@ -29,7 +29,7 @@
 
 BASE_DIR=$(pwd)
 WORK_DIR=../OFMF_Agent
-
+REDFISH_DIR=../redfishRepo
 MOCKUP_DIR=../mockups
 
 
@@ -113,15 +113,18 @@ mkdir $WORK_DIR
 
 # Get the Redfish base
 echo "Getting Redfish emulator base files..."
-git clone --depth 1 https://github.com/DMTF/Redfish-Interface-Emulator \
-    $WORK_DIR
+cp -r -f $REDFISH_DIR/* $WORK_DIR
+#git clone --depth 1 https://github.com/DMTF/Redfish-Interface-Emulator \
+    #$WORK_DIR
 
+#exit()
+    
 echo "Getting mockups repository: '$MOCKUP_DIR'..."
-rm -fr $MOCKUP_DIR
-mkdir $MOCKUP_DIR
+#rm -fr $MOCKUP_DIR
+#mkdir $MOCKUP_DIR
 
-git clone --depth 1 https://github.com/OFMFWG/mockups \
-    $MOCKUP_DIR
+#git clone --depth 1 https://github.com/OFMFWG/mockups \
+#    $MOCKUP_DIR
 
 # Set up our virtual environment
 echo "Setting up emulator Python virtualenv and requirements..."
@@ -140,6 +143,7 @@ cp  -f $BASE_DIR/emulator.py $WORK_DIR
 cp -f $BASE_DIR/agentDB.json $WORK_DIR
 cp -r -f $BASE_DIR/agent_utils $WORK_DIR/
 mkdir $WORK_DIR/agent_POSTs
+mkdir $WORK_DIR/zephyr_cmds
 
 echo "Add mockups from OFMF mockup repository..."
 rm -rf $WORK_DIR/Resources

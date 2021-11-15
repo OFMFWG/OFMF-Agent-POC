@@ -208,40 +208,38 @@ class FabricsConnectionsAPI(Resource):
                     # try to reach Zephyr as defined
                     zephyr_response={}
                     zephyr_URI = g.ZEPHYR
-                    #postID="/api/v1/device/add"
                     postID= g.ZEPHYRADD
-                    print(zephyr_URI)
                     headers = {'Content-type':'application/json', 'Accept':'text/plain'}
                     r = requests.post(zephyr_URI+postID, data = json.dumps(zephyr_body),\
                             headers=headers)
-                    print("fake try of Zephyr")
                     zephyr_response = r.json()
+                    z_resp=500
                     print(json.dumps(zephyr_response, indent = 4))
-                    zAssigned_uuid = zephyr_response["instance_uuids"][0]
                     # if successful;
-                    #  retrieve the instance_uuid which Zephyr assigned to the chunk
-                    agentDB["nodes"][p_nodeID]["nodeProperties"]\
-                            ["memchunks"][p_chunk_index]["instance_uuid"]= zAssigned_uuid
-                    zephyr_body["resource"]["resources"][0]["instance_uuid"] =zAssigned_uuid
+                    if zephyr_response["callback"]["success"]:
+                        #  retrieve the instance_uuid which Zephyr assigned to the chunk
+                        zAssigned_uuid = zephyr_response["instance_uuids"][0]
+                        z_resp=200
                     print(json.dumps(zephyr_body, indent=4))
-                    with open("./zephyrAdd_MD"+md_id+"_MC"+mc_id+ ".json","w") as jdata:
-                        json.dump(zephyr_body, jdata, indent=4)
-                        jdata.close()
-                    zephyrCMD_count = zephyrCMD_count+1
 
                 else:
                     # no Zephyr, 
                     print("could not find zephyr")
+                    z_resp=200
                     
+                # always create a record of the successful Zephyr command
+                zephyr_body["resource"]["resources"][0]["instance_uuid"] =zAssigned_uuid
+                if z_resp==200:
 
-
-
-
-                #  add the connection to the producer's node data
-                agentDB["nodes"][p_nodeID]["nodeProperties"]\
+                    with open("./zephyr_cmds/zephyrCONN_"+connID+".json","w") as jdata:
+                        json.dump(zephyr_body, jdata, indent=4)
+                        jdata.close()
+                    zephyrCMD_count = zephyrCMD_count+1
+                    agentDB["nodes"][p_nodeID]["nodeProperties"]\
+                            ["memchunks"][p_chunk_index]["instance_uuid"]= zAssigned_uuid
+                    #  add the connection to the producer's node data
+                    agentDB["nodes"][p_nodeID]["nodeProperties"]\
                         ["connections"].append(tmpConn)
-
-
 
             # write the DB back to file
             with open(AGENT_DB_FILE, "w") as file_json:
@@ -276,10 +274,78 @@ class FabricsConnectionsAPI(Resource):
         #Set path to object, then call delete_object:
         path = create_path(self.root, self.fabrics, fabric, self.f_connections, f_connection)
         base_path = create_path(self.root, self.fabrics, fabric, self.f_connections)
-
         print("running connection DELETE ---------------")
-        #return delete_object(path, base_path)
-        return jsonify(200)   #dummy to check delete path
+        try:
+            global config
+            #  config will be the connection request from OFMF
+            if request.data: 
+                config= json.loads(request.data)
+            
+            print("connection passed in ", json.dumps(config,indent=4)) 
+            fab_uuid = agentDB["fabricIDs"]["fab_uuid"]
+            connID = config["Id"] 
+            connURI = config["@odata.id"]
+            # retrieve the original resource ADD command sent to Zephyr
+            with open("./zephyr_cmds/zephyrCONN_"+connID+".json","r") as jdata:
+                zephyr_body= json.load(jdata)
+            jdata.close()
+            print("sending to zephyr:  ",json.dumps(zephyr_body, indent=4))
+            # resend the same resource command to Zephyr's DELETE URI
+            z_resp=500
+            if not "None" in g.ZEPHYR :
+
+                # try to reach Zephyr as defined
+                zephyr_response={}
+                zephyr_URI = g.ZEPHYR
+                postID= g.ZEPHYRDEL
+                headers = {'Content-type':'application/json', 'Accept':'text/plain'}
+                r = requests.delete(zephyr_URI+postID, data = json.dumps(zephyr_body),\
+                            headers=headers)
+                zephyr_response = r.json()
+                print(json.dumps(zephyr_response, indent = 4))
+                # if successful;
+                if zephyr_response["callback"]["success"]:
+                    z_resp=200
+
+            else:
+                # no Zephyr, 
+                print("could not find zephyr")
+                z_resp=200
+
+            #  if the zephry DELETE is successful, update the Agent DB, 
+            #  then delete Connection file
+            if z_resp==200:
+                #   brute force:  compare all nodes' connections to this one
+                for nodeID, nodeDetails in agentDB["nodes"].items():
+                    # walk through all connections to each node
+                    for index, connItem in enumerate(nodeDetails\
+                            ["nodeProperties"]["connections"]):
+                        if connItem["@odata.id"]==connURI:
+                            #  Delete this list entry
+                            nodeDetails["nodeProperties"]["connections"].pop(index)
+                            print("deleting a connection reference ", nodeID, " ", connItem)
+
+
+                # write the DB back to file
+
+                with open(AGENT_DB_FILE, "w") as file_json:
+                    json.dump(agentDB,file_json, indent=4)
+                file_json.close()
+
+                # remove the zephyr command file, as the connection is gone
+                # NOTE: the memory chunk's instance_uuid assigned by zephyr is still
+                # valid, but it is stored with the memory chunk
+                # return the DELETE request from OFMF back to OFMF, it is expecting it
+                os.remove("./zephyr_cmds/zephyrCONN_"+connID+".json")
+                print("returning DELETE request to OFMF ",json.dumps(config, indent = 4))
+                resp = config, 200
+
+        except Exception:
+            traceback.print_exc()
+            resp = INTERNAL_ERROR
+        logging.info('FabricsConnectionsAPI POST exit')
+
+        return resp
 
 # Fabrics Connections Collection API
 class FabricsConnectionsCollectionAPI(Resource):
