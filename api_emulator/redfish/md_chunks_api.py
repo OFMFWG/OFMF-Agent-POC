@@ -90,11 +90,13 @@ class MDChunksAPI(Resource):
 
         try:
             global config
+            print("received config", config)
             tmpMemChunk={}
             if request.data: 
                 config= json.loads(request.data)
             #  find the nodeID of the endpoint that sources the memory chunk
             #  a memory chunk may have only ONE sourcing endpoint in PoC
+            print("adjusted config", config)
             ep_id = config["Links"]["Endpoints"][0]["@odata.id"].split("/")[-1]
             nodeID = agentDB["endpt_xref"][ep_id]
             numaID = 1  # PoC default, only value allowed
@@ -213,7 +215,7 @@ class MDChunksAPI(Resource):
         path = create_path(self.root, self.chassis, chassis, self.memory_domains, memory_domain, self.md_chunks, md_chunks)
         base_path = create_path(self.root, self.chassis, chassis, self.memory_domains, memory_domain, self.md_chunks)
         #return delete_object(path, base_path)
-        return 501
+        return jsonify(200)
 
 
 # MemoryDomains Collection API

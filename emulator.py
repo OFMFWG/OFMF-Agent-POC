@@ -73,6 +73,8 @@ STATIC = None
 #  Other entities to converse with
 ZEPHYRPORT = None
 ZEPHYRURI = None
+ZEPHYRADD = None
+ZEPHYRDEL = None
 OFMFPORT = None
 OFMFPORT = None
 OFMFCONFIG = None
@@ -121,6 +123,16 @@ with open(CONFIG, 'r') as f:
         pass
 
     try:
+        ZEPHYRADD = config['ZEPHYRADD']
+    except:
+        pass
+
+    try:
+        ZEPHYRDEL = config['ZEPHYRDEL']
+    except:
+        pass
+
+    try:
         OFMFCONFIG = config['OFMFCONFIG']
     except:
         pass
@@ -136,6 +148,8 @@ with open(CONFIG, 'r') as f:
         pass
 
 
+g.ZEPHYRADD = ZEPHYRADD
+g.ZEPHYRDEL = ZEPHYRDEL
 g.ZEPHYR = 'http://' + ZEPHYRURI + ':' + ZEPHYRPORT
 g.OFMF = 'http://' + OFMFURI + ':' + OFMFPORT
 g.OFMFCONFIG = OFMFCONFIG

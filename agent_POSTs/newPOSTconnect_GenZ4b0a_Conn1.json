@@ -14,23 +14,20 @@
     "Id": "1",
     "Links": {
         "InitiatorEndpoints": [
-            {
-                "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/1"
-	    },
 	    {
-                "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/4"
+                "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/2"
             }
         ],
         "TargetEndpoints": [
             {
-                "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/2"
+                "@odata.id": "/redfish/v1/Fabrics/GenZ4b0a/Endpoints/4"
             }
         ]
     },
     "MemoryChunkInfo": [
         {
             "MemoryChunk": {
-                "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MemoryDomains/2/MemoryChunks/1"
+                "@odata.id": "/redfish/v1/Chassis/GenZ4b0a/MemoryDomains/3/MemoryChunks/1"
             },
             "AccessCapabilities": [
                 "Read",

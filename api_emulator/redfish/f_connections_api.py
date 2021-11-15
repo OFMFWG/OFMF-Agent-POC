@@ -75,7 +75,8 @@ class FabricsConnectionsAPI(Resource):
     # HTTP GET
     def get(self, fabric, f_connection):
         path = create_path(self.root, self.fabrics, fabric, self.f_connections, f_connection, 'index.json')
-        return get_json_data (path)
+        #return get_json_data (path)
+        return 501
 
     # HTTP POST
     # - Agent parses the connection and matches the connected resources
@@ -199,12 +200,6 @@ class FabricsConnectionsAPI(Resource):
                     zephyr_body["resource"]["resources"][0]["memory"].append(\
                             copy.deepcopy(tmpMemDetails))
                 
-                print(json.dumps(zephyr_body, indent=4))
-                with open("./zephyrAdd_MD"+md_id+"_MC"+mc_id+"_"+str(zephyrCMD_count)+\
-                        ".json","w") as jdata:
-                    json.dump(zephyr_body, jdata, indent=4)
-                    jdata.close()
-                zephyrCMD_count = zephyrCMD_count+1
 
                 zAssigned_uuid = 'XXX'
                 #  send the Zephyr command 
@@ -212,16 +207,27 @@ class FabricsConnectionsAPI(Resource):
                 if not "None" in g.ZEPHYR :
                     # try to reach Zephyr as defined
                     zephyr_response={}
-                    zephyr_UIR = g.ZEPHYR
-                    postID="/api/v1/device/add"
-                    print(zephyr_UIR)
+                    zephyr_URI = g.ZEPHYR
+                    #postID="/api/v1/device/add"
+                    postID= g.ZEPHYRADD
+                    print(zephyr_URI)
                     headers = {'Content-type':'application/json', 'Accept':'text/plain'}
-                    r = requests.post(zephyr_UIR+postID, data = json.dumps(zephyr_body),\
+                    r = requests.post(zephyr_URI+postID, data = json.dumps(zephyr_body),\
                             headers=headers)
                     print("fake try of Zephyr")
                     zephyr_response = r.json()
                     print(json.dumps(zephyr_response, indent = 4))
                     zAssigned_uuid = zephyr_response["instance_uuids"][0]
+                    # if successful;
+                    #  retrieve the instance_uuid which Zephyr assigned to the chunk
+                    agentDB["nodes"][p_nodeID]["nodeProperties"]\
+                            ["memchunks"][p_chunk_index]["instance_uuid"]= zAssigned_uuid
+                    zephyr_body["resource"]["resources"][0]["instance_uuid"] =zAssigned_uuid
+                    print(json.dumps(zephyr_body, indent=4))
+                    with open("./zephyrAdd_MD"+md_id+"_MC"+mc_id+ ".json","w") as jdata:
+                        json.dump(zephyr_body, jdata, indent=4)
+                        jdata.close()
+                    zephyrCMD_count = zephyrCMD_count+1
 
                 else:
                     # no Zephyr, 
@@ -229,10 +235,6 @@ class FabricsConnectionsAPI(Resource):
                     
 
 
-                # if successful;
-                #  retrieve the instance_uuid which Zephyr assigned to the chunk
-                agentDB["nodes"][p_nodeID]["nodeProperties"]\
-                        ["memchunks"][p_chunk_index]["instance_uuid"]= zAssigned_uuid
 
 
                 #  add the connection to the producer's node data
@@ -259,20 +261,25 @@ class FabricsConnectionsAPI(Resource):
     def patch(self, fabric, f_connection):
         path = os.path.join(self.root, self.fabrics, fabric, self.f_connections, f_connection, 'index.json')
         patch_object(path)
-        return self.get(fabric, f_connection)
+        #return self.get(fabric, f_connection)
+        return 501
 
     # HTTP PUT
     def put(self, fabric, f_connection):
         path = os.path.join(self.root, self.fabrics, fabric, self.f_connections, f_connection, 'index.json')
         put_object(path)
-        return self.get(fabric, f_connection)
+        #return self.get(fabric, f_connection)
+        return 501
 
     # HTTP DELETE
     def delete(self, fabric, f_connection):
         #Set path to object, then call delete_object:
         path = create_path(self.root, self.fabrics, fabric, self.f_connections, f_connection)
         base_path = create_path(self.root, self.fabrics, fabric, self.f_connections)
-        return delete_object(path, base_path)
+
+        print("running connection DELETE ---------------")
+        #return delete_object(path, base_path)
+        return jsonify(200)   #dummy to check delete path
 
 # Fabrics Connections Collection API
 class FabricsConnectionsCollectionAPI(Resource):
