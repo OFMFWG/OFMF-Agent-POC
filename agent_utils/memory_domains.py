@@ -46,6 +46,10 @@ _TEMPLATE = \
       },
   "AllowsMemoryChunkCreation":"true",
   "AllowsBlockProvisioning": "true",
+  "GenZ": {
+      "max_data":"INVALID",
+      "gcid":"INVALID"
+      },
   "Links": {
       "MediaControllers" : {
           "@odata.id": "INVALID"

@@ -47,7 +47,8 @@ _TEMPLATE = \
       },
 
   "Links": {
-      "Endpoints":[]
+      "Endpoints":[],
+      "MemoryDomains":[]
       },
   "Model": "zMM-xxx",
   "Ports": {

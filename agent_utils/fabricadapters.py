@@ -46,7 +46,8 @@ _TEMPLATE = \
       "gcid":"INVALID"
       },
   "Links":{
-      "Endpoints":[]
+      "Endpoints":[],
+      "MemoryDomains":[]
       },
   "Model": "Bridge Model X",
   "Name": "Bridge {fa_id}",

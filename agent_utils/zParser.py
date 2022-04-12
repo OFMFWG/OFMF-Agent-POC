@@ -348,6 +348,8 @@ def createFA_IDs(nodeID,allAgentNodes):
     
     tmpList=[]
     tmpStr=""
+    md_path=""
+    md_index=""
     rb = allAgentNodes["fabricIDs"]["rb"]
     f_id = allAgentNodes["fabricIDs"]["f_id"]
     node_index=allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["node_index"]
@@ -373,7 +375,12 @@ def createFA_IDs(nodeID,allAgentNodes):
     allAgentNodes["nodes"][nodeID]["redfishIDs"]["ep_id"] = ep_id
     allAgentNodes["nodes"][nodeID]["nodeProperties"]["endpoints"]["@odata.id"] =\
             str(rb+"Fabrics/"+f_id+"/Endpoints/"+ep_id)
-    
+    #record the memory domain URI into agentDB
+    md_path=allAgentNodes["fabricIDs"]["md_path"]
+    md_index=allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["md_index"]
+    tmpStr = md_path + "/" + md_index
+    allAgentNodes["nodes"][nodeID]["nodeProperties"]\
+            ["memdomains"].append({"@odata.id":tmpStr})
     return
 
 def createMC_IDs(nodeID,allAgentNodes):
@@ -382,6 +389,8 @@ def createMC_IDs(nodeID,allAgentNodes):
     
     tmpList=[]
     tmpStr=""
+    md_path=""
+    md_index=""
     rb = allAgentNodes["fabricIDs"]["rb"]
     ch_id=allAgentNodes["fabricIDs"]["ch_id"]
     f_id = allAgentNodes["fabricIDs"]["f_id"]
@@ -407,6 +416,12 @@ def createMC_IDs(nodeID,allAgentNodes):
     allAgentNodes["nodes"][nodeID]["nodeProperties"]["endpoints"]["@odata.id"] =\
             str(rb+"Fabrics/"+f_id+"/Endpoints/"+ep_id)
     
+    #record the memory domain URI into agentDB
+    md_path=allAgentNodes["fabricIDs"]["md_path"]
+    md_index=allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["md_index"]
+    tmpStr = md_path + "/" + md_index
+    allAgentNodes["nodes"][nodeID]["nodeProperties"]\
+            ["memdomains"].append({"@odata.id":tmpStr})
     return
 
 def createSW_IDs(nodeID,allAgentNodes):
@@ -453,15 +468,11 @@ def createMemChunkIDs(allAgentNodes):
     for k,v in (allAgentNodes["nodes"].items()):
         print("node ID for memChunk install ",k)
         nodeID=k
-        # first post a memory domain instance for the node
+        # first post a memory domain instance for the node if one is needed
         max_data=allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["max_data"]
         if max_data>0 :
             md_index=allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["md_index"]
-            mch_index="1"  # build 1 memory chunk at initial configuration
-            tmpStr = md_path + "/" + md_index
-            allAgentNodes["nodes"][nodeID]["nodeProperties"]\
-                ["memdomains"].append({"@odata.id":tmpStr})
-            
+            mch_index="1"  #  no memory chunk at initial configuration
             #  build a memory domain instance 
             wildcards = {"rb":rb, "c_id":ch_id, "md_id":md_index }
             ofmf_body = copy.deepcopy(get_ChassisMemoryDomain_instance(wildcards)) 
@@ -469,6 +480,17 @@ def createMemChunkIDs(allAgentNodes):
             ofmf_body["Links"]["MediaControllers"]["@odata.id"]=\
                     allAgentNodes["nodes"][nodeID]["redfishIDs"]["@odata.id"]
             
+            #ofmf_body["GenZ"]["gcid"]=\
+                    #allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["gcids"][0]
+            #ofmf_body["GenZ"]["c_uuid"]=c_uuid
+            ofmf_body["GenZ"]["max_data"]=allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["max_data"]
+            ofmf_body["GenZ"]["minChunkSize"]=\
+                    allAgentNodes["nodes"][nodeID]["nodeProperties"]["functionality"]["minChunkSize"]
+            ofmf_body["GenZ"]["maxChunks"]=\
+                    allAgentNodes["nodes"][nodeID]["nodeProperties"]["functionality"]["maxChunks"]
+            ofmf_body["AddressRangeType"] = "????"
+
+
             json_file=""
             json_file=("./agent_POSTs/POSTmemDomInstance_"+md_index+".json")
             print()
@@ -583,8 +605,12 @@ def postFA_nodes(nodeID,allAgentNodes):
             allAgentNodes["nodes"][nodeID]["nodeProperties"]["functionality"]["minChunkSize"]
     ofmf_body["GenZ"]["maxChunks"]=\
             allAgentNodes["nodes"][nodeID]["nodeProperties"]["functionality"]["maxChunks"]
+
+    tmpStr=allAgentNodes["nodes"][nodeID]["nodeProperties"]["endpoints"]["@odata.id"]
     ofmf_body["Links"]["Endpoints"].append(\
-            allAgentNodes["nodes"][nodeID]["nodeProperties"]["endpoints"]["@odata.id"])
+            {"@odata.id":tmpStr})
+    ofmf_body["Links"]["MemoryDomains"] = copy.deepcopy(allAgentNodes["nodes"][nodeID]\
+            ["nodeProperties"]["memdomains"])
 
     
     # do the POST
@@ -724,9 +750,12 @@ def postMC_nodes(nodeID,allAgentNodes):
             allAgentNodes["nodes"][nodeID]["nodeProperties"]["functionality"]["minChunkSize"]
     ofmf_body["GenZ"]["maxChunks"]=\
             allAgentNodes["nodes"][nodeID]["nodeProperties"]["functionality"]["maxChunks"]
+    tmpStr=allAgentNodes["nodes"][nodeID]["nodeProperties"]["endpoints"]["@odata.id"]
     ofmf_body["Links"]["Endpoints"].append(\
-            allAgentNodes["nodes"][nodeID]["nodeProperties"]["endpoints"]["@odata.id"])
+            {"@odata.id":tmpStr})
 
+    ofmf_body["Links"]["MemoryDomains"] = copy.deepcopy(allAgentNodes["nodes"][nodeID]\
+            ["nodeProperties"]["memdomains"])
     
     # do the POST
     json_file=""
@@ -852,13 +881,14 @@ def postSW_nodes(nodeID,allAgentNodes):
 
    
 
-    # add additional details from agentDB into fabric adapater POST
+    # add additional details from agentDB into Switch POST
     ofmf_body["Status"]["State"]=\
             allAgentNodes["nodes"][nodeID]["redfishIDs"]["Status"]["State"]
     ofmf_body["GenZ"]["gcid"]=\
             allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["gcids"][0]
+    tmpStr=allAgentNodes["nodes"][nodeID]["nodeProperties"]["endpoints"]["@odata.id"]
     ofmf_body["Links"]["Endpoints"].append(\
-            allAgentNodes["nodes"][nodeID]["nodeProperties"]["endpoints"]["@odata.id"])
+            {"@odata.id":tmpStr})
     ofmf_body["GenZ"]["c_uuid"]=c_uuid
 
     
