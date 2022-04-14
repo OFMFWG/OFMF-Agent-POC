@@ -4,11 +4,11 @@
   "TRAYS": [],
   "STATIC": "Disable",
   "SPEC": "Redfish",
-  "ZEPHYRURI": "127.0.0.1",
+  "ZEPHYRURI": "None",
   "ZEPHYRPORT": "2021",
   "ZEPHYRADD": "/api/v1/device/add",
   "ZEPHYRDEL": "/api/v1/device/del",
-  "OFMFURI": "192.168.11.118",
+  "OFMFURI": "localhost",
   "OFMFPORT": "5000",
   "OFMFCONFIG": "Enable",
   "MOCKUPFOLDERS": ["Mockups"]

@@ -350,9 +350,11 @@ def createFA_IDs(nodeID,allAgentNodes):
     tmpStr=""
     md_path=""
     md_index=""
+    maxMem=0
     rb = allAgentNodes["fabricIDs"]["rb"]
     f_id = allAgentNodes["fabricIDs"]["f_id"]
     node_index=allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["node_index"]
+    maxMem=allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["max_data"]
     
     tmpList = nodeID.split("-")
     #s_id = 'SY_'+ tmpList[2]    #use field 2 of instance_uuid for System id
@@ -375,12 +377,14 @@ def createFA_IDs(nodeID,allAgentNodes):
     allAgentNodes["nodes"][nodeID]["redfishIDs"]["ep_id"] = ep_id
     allAgentNodes["nodes"][nodeID]["nodeProperties"]["endpoints"]["@odata.id"] =\
             str(rb+"Fabrics/"+f_id+"/Endpoints/"+ep_id)
-    #record the memory domain URI into agentDB
-    md_path=allAgentNodes["fabricIDs"]["md_path"]
-    md_index=allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["md_index"]
-    tmpStr = md_path + "/" + md_index
-    allAgentNodes["nodes"][nodeID]["nodeProperties"]\
-            ["memdomains"].append({"@odata.id":tmpStr})
+    #record the memory domain URI into agentDB if appropriate
+    if maxMem>0:
+
+        md_path=allAgentNodes["fabricIDs"]["md_path"]
+        md_index=allAgentNodes["nodes"][nodeID]["zephyrNodeIDs"]["md_index"]
+        tmpStr = md_path + "/" + md_index
+        allAgentNodes["nodes"][nodeID]["nodeProperties"]\
+                ["memdomains"].append({"@odata.id":tmpStr})
     return
 
 def createMC_IDs(nodeID,allAgentNodes):

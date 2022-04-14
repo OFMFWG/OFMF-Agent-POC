@@ -7,6 +7,65 @@ import copy
 import requests
 from md_chunks import get_MDChunks_instance
 
+def get_systems(service_URI,sysInventory):
+
+    listSystems = []
+    listEndpts = ""
+    listFabricAdapters = ""
+    tmpFabricAdapter = {}
+    tmpSys={}
+    tmpSysID=""
+    tmpFA_ID=""
+    tmpList=[]
+    rb="/redfish/v1"
+    headers = {"Content-type":"application/json" }
+
+    print("get all Systems")
+    postID=rb + "/Systems"
+    print(service_URI+postID)
+    print("----")
+    r = requests.get(service_URI+postID, headers=headers)
+    print(r)
+    data = json.loads(r.text)
+    print(json.dumps(data, indent =4 ))
+    listSystems = copy.deepcopy(data["Members"])
+    print(listSystems)                   # grab list of systems
+    for k,v in enumerate(listSystems):   # for each system in list
+        print(k,"\n", json.dumps(v, indent=4))
+        tmpSysID=v["@odata.id"].split("/")[-1]
+        print("searching system ",tmpSysID)
+        sysInventory[tmpSysID]={}      #make a dict with System ID
+        # grab list of FabricAdapters in this system
+        postID=rb + "/Systems" +"/" + tmpSysID +"/FabricAdapters"
+        print(postID)
+        r = requests.get(service_URI+postID, headers=headers)
+        print(r)
+        data = json.loads(r.text)
+        print(json.dumps(data, indent =4 ))
+        listFabricAdapters = copy.deepcopy(data["Members"])
+        print(json.dumps(listFabricAdapters, indent = 4))                   
+        for tmpFA_ID,FA_URI in enumerate(listFabricAdapters):
+            print("---- processing FA ", tmpFA_ID," of System", tmpSysID)
+            print(FA_URI)
+            # grab list of FabricAdapters in this system
+            postID=FA_URI["@odata.id"]
+            print(postID)
+            r = requests.get(service_URI+postID, headers=headers)
+            print(r)
+            data = json.loads(r.text)
+            print(json.dumps(data, indent =4 ))
+            tmpFA_ID=postID.split("/")[-1]
+            sysInventory[tmpSysID][tmpFA_ID]={}
+            tmpList=data["Links"]["Endpoints"][0]["@odata.id"]
+            sysInventory[tmpSysID][tmpFA_ID]["EndptURI"]=tmpList
+            sysInventory[tmpSysID][tmpFA_ID]["fabricID"]=tmpList.split("/")[4]
+            sysInventory[tmpSysID][tmpFA_ID]["size"]=data["GenZ"]["max_data"]
+            sysInventory[tmpSysID][tmpFA_ID]["EndptID"]=tmpList.split("/")[-1]
+            sysInventory[tmpSysID][tmpFA_ID]["connections"]={}
+
+
+    return
+
 def get_memDomains(service_URI,memInventory):
     listFabrics = ""
     listEndpts = ""
@@ -374,6 +433,7 @@ def myCLI(agent_URI,service_URI):
     postFile=""
     myCMD=""
     memInventory={}
+    sysInventory={}
     tmpMemInventory={}
     freeList=[]
     busyList=[]
@@ -412,6 +472,11 @@ def myCLI(agent_URI,service_URI):
             print(r)
             data = json.loads(r.text)
             print(json.dumps(data, indent =4 ))
+        elif myCMD == "get_sys":
+            tmpSysInventory={}
+            get_systems(service_URI,tmpSysInventory)
+            print(json.dumps(tmpSysInventory, indent = 4))
+            sysInventory=copy.deepcopy(tmpSysInventory)
         elif myCMD == "get_mem":
             tmpMemInventory={}
             get_memDomains(service_URI,tmpMemInventory)
@@ -434,7 +499,7 @@ def myCLI(agent_URI,service_URI):
             print()
             print(json.dumps(memInventory, indent=4))
             print("done sort_mem")
-        elif myCMD == "list_free":
+        elif myCMD == "list_mem":
             print("retrieve free mem and busy mem lists")
             make_free_list(memInventory,freeList,busyList)
         elif myCMD == "create_chunk":
