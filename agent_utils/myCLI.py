@@ -6,6 +6,56 @@ import json
 import copy
 import requests
 from md_chunks import get_MDChunks_instance
+from connections import get_Connections_instance
+
+def get_connections(service_URI,f_id, connInventory):
+    listConns = []
+    maxConnID =0
+    rb="/redfish/v1"
+    headers = {"Content-type":"application/json" }
+    print("get all Connections on this fabric")
+    postID=rb + "/Fabrics/"+f_id+"/Connections"
+    print(service_URI+postID)
+    print("----")
+    r = requests.get(service_URI+postID, headers=headers)
+    print(r)
+    data = json.loads(r.text)
+    print(json.dumps(data, indent =4 ))
+    connInventory[f_id]={}           # clear out the connection dict for the fabric
+    connInventory[f_id]["connections"]={}
+    listConns = copy.deepcopy(data["Members"])
+    print(listConns)                   # grab list of systems
+    for k,v in enumerate(listConns):   # for each connection in list
+        print(k,"\n", json.dumps(v, indent=4))
+        tmpConnID=v["@odata.id"].split("/")[-1]
+        intConnID=int(tmpConnID)
+        if intConnID > maxConnID:
+            maxConnID=intConnID
+        print("searching connection ",tmpConnID)
+        connInventory[f_id]["connections"][tmpConnID]={}      #make a dict with Connection ID
+        print("---- processing connID ", tmpConnID," of Fabric", f_id)
+        print(v)
+        # grab the connection object
+        postID=v["@odata.id"]
+        print(postID)                   # postID is @odata.id of connection
+        r = requests.get(service_URI+postID, headers=headers)
+        print(r)
+        data = json.loads(r.text)
+        print(json.dumps(data, indent =4 ))
+        tmpList=data["Links"]["InitiatorEndpoints"][0]["@odata.id"]
+        connInventory[f_id]["connections"][tmpConnID]["InitiatorEndptURI"]=tmpList
+        tmpList=data["Links"]["TargetEndpoints"][0]["@odata.id"]
+        connInventory[f_id]["connections"][tmpConnID]["TargetEndptURI"]=tmpList
+        tmpList=data["MemoryChunkInfo"][0]["MemoryChunk"]["@odata.id"]
+        connInventory[f_id]["connections"][tmpConnID]["MemoryChunkURI"]= tmpList
+        tmpList=data["ConnectionType"]
+        connInventory[f_id]["connections"][tmpConnID]["ConnectionType"]= tmpList
+        tmpList=data["Status"]["State"]
+        connInventory[f_id]["connections"][tmpConnID]["State"]= tmpList
+
+    connInventory[f_id]["maxID"]=maxConnID
+
+    return
 
 def get_systems(service_URI,sysInventory):
 
@@ -245,7 +295,98 @@ def print_free_list(freeList):
 
 
     return
-def create_chunk(service_URI,headers,memInventory,fabricID,domainNum,size_in_MiB):
+
+
+def create_connection(service_URI,headers,memInventory,sysInventory,connInventory,\
+                fabricID,domainNum,chunkID,sysID,fa_ID):
+    print("creating connection" )
+    found=False
+    wildcards={}
+    ofmf_body={}
+    tmpList=[]
+    tmpStr=""
+    tmpDict={}
+    rb="/redfish/v1/"
+    connID=str(connInventory[fabricID]["maxID"]+1)
+    connURI = rb +"Fabrics/" + fabricID + "/Connections/" + connID
+    wildcards = {"rb":rb, "f_id":fabricID,"c_id":connID}
+    ofmf_body = copy.deepcopy(get_Connections_instance(wildcards)) 
+
+    # grab the initiator endpoint from the system fabric adapter
+    tmpStr = sysInventory[sysID][fa_ID]["EndptURI"]
+    ofmf_body["Links"]["InitiatorEndpoints"].append({"@odata.id":tmpStr})
+
+    # grab the target endpoint from the memory chunk 
+    tmpStr = memInventory[fabricID][domainNum]["EndptURI"]
+    ofmf_body["Links"]["TargetEndpoints"].append({"@odata.id":tmpStr})
+
+    # fill in the memory chunk details
+    tmpStr = rb + "Chassis/" + fabricID + "/MemoryDomains/" + \
+            domainNum + "/MemoryChunks/" +chunkID
+    tmpDict["MemoryChunk"]={"@odata.id": tmpStr}
+    tmpDict["AccessCapabilities"]=["Read","Write"]
+    tmpDict["AccessState"]=["Optimized"]
+    ofmf_body["MemoryChunkInfo"].append(tmpDict)
+
+    print(json.dumps(ofmf_body, indent = 4))
+    #  just write the new memory chunk POST file for later use
+    json_file=""
+    json_file=("./iPOSTconn_"+connID+".json")
+    print()
+    print("posting file ", json_file)
+    # hack for testing
+    with open(json_file,"w") as jdata:
+        json.dump(ofmf_body,jdata, indent=4)
+        jdata.close()
+
+    postID=ofmf_body["@odata.id"]
+    print ("POST")
+    print(service_URI+postID)
+    r = requests.post(service_URI+postID, data=json.dumps(ofmf_body),\
+                headers=headers)
+    print(r)
+    data = json.loads(r.text)
+    print(json.dumps(data, indent =4 ))
+
+    return
+
+def delete_connection(service_URI, headers, connInventory ):
+    # select connection to delete
+    req_fabricID=""
+    req_connID=""
+    postID=""
+    data=""
+
+    rb="/redfish/v1"
+    req_fabricID=str(input("use which fabric? >"))
+    req_connID=str(input("use which connection? >"))
+    postID=rb+"/Fabrics/" + req_fabricID +"/Connections/" + req_connID
+    print(service_URI+postID)
+    print("----")
+    r = requests.get(service_URI+postID, data=json.dumps(data),\
+                headers=headers)
+    print(r)
+    if "200" in str(r):                 #found connection
+        data = json.loads(r.text)
+        print(json.dumps(data, indent =4 ))
+        # just need to check for connection in use
+        # get the connections list for this fabric
+        # verify this chunk is not part of an existing connection
+        #
+        # go ahead and delete this connection
+
+        r = requests.delete(service_URI+postID, data=json.dumps(data),\
+                    headers=headers)
+        print(r)
+    else:
+        print("Connection not found ")
+        print(r.text)
+
+
+    return
+
+
+def create_chunk(service_URI,headers,memInventory,fabricID,domainNum,size_in_MiB,memClass):
     print("creating chunk of ",size_in_MiB," MBytes")
     reqSize=size_in_MiB * (2**20)
     found=False
@@ -281,9 +422,9 @@ def create_chunk(service_URI,headers,memInventory,fabricID,domainNum,size_in_MiB
                 ofmf_body["MemoryChunkSizeMiB"] = int(reqSize/(2**20))
                 #  add the necessary Oem details from (or for?) zephyr
                 #  verify these are defaults that agent overwrites?
-                ofmf_body["Oem"]["class"] = 2
-                ofmf_body["Oem"]["type"] = 1
-                ofmf_body["Oem"]["flags"] = 0
+                ofmf_body["Oem"]["class"] = memClass    # 2= DAX, 17 = block
+                ofmf_body["Oem"]["type"] = 1            # genZ memory space, always 1 for POC
+                ofmf_body["Oem"]["flags"] = 0           # Agent calculates this value
                 print("new chunk --")
                 print(json.dumps(ofmf_body, indent=4))
                 #  just write the new memory chunk POST file for later use
@@ -313,6 +454,46 @@ def create_chunk(service_URI,headers,memInventory,fabricID,domainNum,size_in_MiB
         
     else:
         print("no free space chunk large enough in that memory domain")
+
+    return
+
+
+def delete_chunk(service_URI, headers, memInventory, busyList):
+    # select chunk to delete
+    req_fabricID=""
+    req_domNum=""
+    req_chunkID=0
+    postID=""
+    data=""
+
+    rb="/redfish/v1"
+    print_free_list(busyList)
+    req_fabricID=str(input("use which fabric? >"))
+    req_domNum=str(input("use which memory domain? >"))
+    req_chunkID=str(input("delete which memory chunk? >"))
+    postID=rb+"/Chassis/" + req_fabricID +"/MemoryDomains/" +\
+            req_domNum +"/MemoryChunks/" + req_chunkID
+    print(service_URI+postID)
+    print("----")
+    r = requests.get(service_URI+postID, data=json.dumps(data),\
+                headers=headers)
+    print(r)
+    if "200" in str(r):                 #found memory chunks collection
+        data = json.loads(r.text)
+        print(json.dumps(data, indent =4 ))
+        # just need to check for connections
+        # get the connections list for this fabric
+        # verify this chunk is not part of an existing connection
+        #
+        # go ahead and delete this chunk
+
+        r = requests.delete(service_URI+postID, data=json.dumps(data),\
+                    headers=headers)
+        print(r)
+    else:
+        print("memory chunk not found ")
+        print(r.text)
+
 
     return
 
@@ -477,6 +658,12 @@ def myCLI(agent_URI,service_URI):
             get_systems(service_URI,tmpSysInventory)
             print(json.dumps(tmpSysInventory, indent = 4))
             sysInventory=copy.deepcopy(tmpSysInventory)
+        elif myCMD == "get_conns":
+            tmpConnInventory={}
+            f_id="GenZ4b0a"
+            get_connections(service_URI,f_id, tmpConnInventory)
+            print(json.dumps(tmpConnInventory, indent = 4))
+            connInventory=copy.deepcopy(tmpConnInventory)
         elif myCMD == "get_mem":
             tmpMemInventory={}
             get_memDomains(service_URI,tmpMemInventory)
@@ -506,10 +693,22 @@ def myCLI(agent_URI,service_URI):
             req_fabricID=str(input("use which fabric? >"))
             req_domNum=str(input("use which memory domain? >"))
             req_sizeInMB=int(input("size of chunk in MiB? >"))
-            print(type(req_sizeInMB))
-            create_chunk(service_URI,headers,memInventory,req_fabricID,req_domNum,req_sizeInMB)
-            # call get_mem
-            # call sort_mem
+            req_class=int(input("class (dax=2, block=17) of chunk (2 or 17)> "))
+            create_chunk(service_URI,headers,memInventory,req_fabricID,req_domNum,req_sizeInMB,req_class)
+        elif myCMD =="delete_chunk":
+            delete_chunk(service_URI,headers,memInventory,busyList)
+
+        elif myCMD == "create_conn":
+            req_fabricID=str(input("use which fabric? >"))
+            req_domNum=str(input("use which memory domain? >"))
+            req_chunkID=str(input("use which memory chunk? >"))
+            req_sysID=(input("use which systemID? >"))
+            req_faID=(input("use which Fabric Adapter ? >"))
+            create_connection(service_URI,headers,memInventory,sysInventory,connInventory,
+                    req_fabricID,req_domNum,req_chunkID,req_sysID,req_faID)
+
+        elif myCMD =="delete_conn":
+            delete_connection(service_URI,headers,connInventory)
 
         elif myCMD == "post":
             postFile= input("file for body of POST?> ")

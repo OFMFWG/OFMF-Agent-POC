@@ -143,8 +143,9 @@ class MDChunksAPI(Resource):
             if (chunkStart + chunkSize) > agentDB["nodes"][nodeID]["zephyrNodeIDs"]["max_data"] :
                 print("ooops, chunk exceeds node capacity")
                 resp = 500
+                return resp
 
-            # add the memory chunk to agentDB
+            # add the memory chunk to agentDB if we don't reject it earlier
             agentDB["nodes"][nodeID]["nodeProperties"]["memchunks"].append(tmpMemChunk)
             agentDB["fabricIDs"]["daxCount"] = daxCount + 1     
             print(json.dumps(tmpMemChunk, indent=4))
@@ -153,6 +154,8 @@ class MDChunksAPI(Resource):
             with open(AGENT_DB_FILE, "w") as file_json:
                 json.dump(agentDB,file_json, indent=4)
             file_json.close()
+            # fill in the 'flags' field of the chunk request
+            config["Oem"]["flags"]=memFlags
 
             resp = config, 200
 
