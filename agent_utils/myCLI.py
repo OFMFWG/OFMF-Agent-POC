@@ -111,6 +111,8 @@ def get_systems(service_URI,sysInventory):
             sysInventory[tmpSysID][tmpFA_ID]["fabricID"]=tmpList.split("/")[4]
             sysInventory[tmpSysID][tmpFA_ID]["size"]=data["GenZ"]["max_data"]
             sysInventory[tmpSysID][tmpFA_ID]["EndptID"]=tmpList.split("/")[-1]
+            sysInventory[tmpSysID][tmpFA_ID]["serialNumber"]=data["SerialNumber"]
+            sysInventory[tmpSysID][tmpFA_ID]["runState"]=data["Status"]["State"]
             sysInventory[tmpSysID][tmpFA_ID]["connections"]={}
 
 
@@ -156,6 +158,7 @@ def get_memDomains(service_URI,memInventory):
             tmpDomain={}
             tmpDomNum = v["@odata.id"].split("/")[-1]
             tmpMaxChunkID=0
+            tmpMinChunkSize=0
             # grab memory domain details
             postID=rb + "/Chassis" +"/" + tmpFabric +"/MemoryDomains" + "/" +tmpDomNum
             print("searching ",postID)
@@ -171,11 +174,12 @@ def get_memDomains(service_URI,memInventory):
             tmpDomain["memDomURI"]=data["@odata.id"]
             tmpDomain["size"]=data["GenZ"]["max_data"]
             tmpDomain["maxChunks"]=data["GenZ"]["maxChunks"]
-            tmpDomain["minChunkSize"]=data["GenZ"]["minChunkSize"]
+            tmpMinChunkSize=data["GenZ"]["minChunkSize"]
+            tmpDomain["minChunkSize"]=tmpMinChunkSize
             tmpDomain["block_enabled"]=data["AllowsBlockProvisioning"]
             tmpDomain["chunk_enabled"]=data["AllowsMemoryChunkCreation"]
             tmpDomain["memSource"]=data["Links"]["MediaControllers"]["@odata.id"]
-            # trace the memory source to its endpoint
+            # trace the memory source to its endpoint via the memory source
             postID=tmpDomain["memSource"]
             print("searching ",postID)
             r = requests.get(service_URI + postID, headers=headers)
@@ -183,6 +187,8 @@ def get_memDomains(service_URI,memInventory):
             sourceData = json.loads(r.text)
             print(json.dumps(sourceData, indent=4))
             tmpDomain["EndptURI"]=sourceData["Links"]["Endpoints"][0]["@odata.id"] 
+            tmpDomain["serialNumber"]=sourceData["SerialNumber"]
+            tmpDomain["runState"]=sourceData["Status"]["State"]
             tmpDomain["MemoryChunks"] = {}
             memInventory[tmpFabric][tmpDomNum] = {}
             memInventory[tmpFabric][tmpDomNum]= copy.deepcopy(tmpDomain)
@@ -219,6 +225,7 @@ def get_memDomains(service_URI,memInventory):
                     tmpChunk["fabricID"]=tmpFabric
                     tmpChunk["memDomain"]=tmpDomNum
                     tmpChunk["chunkID"]=data["Id"]
+                    tmpChunk["minChunkSize"] = tmpMinChunkSize
                     # following endpoint extraction is PoC specific!!
                     tmpChunk["EndptURI"]=data["Links"]["Endpoints"][0]["@odata.id"] 
                     tmpChunk["size_in_bytes"]=data["MemoryChunkSizeMiB"]*(2**20)
@@ -526,6 +533,7 @@ def find_free_mem(memInventory):
                 new_chunk["memDomain"]=memDomNum
                 new_chunk["EndptURI"]=memDomain["EndptURI"]
                 new_chunk["size_in_bytes"]=memDomain["size"]
+                new_chunk["minChunkSize"]=memDomain["minChunkSize"]
                 new_chunk["start_in_bytes"]=0
                 new_chunk["mediaType"]="Volatile"
                 new_chunk["use_status"]="free"

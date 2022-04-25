@@ -214,13 +214,15 @@ class FabricsConnectionsAPI(Resource):
                             headers=headers)
                     zephyr_response = r.json()
                     z_resp=500
-                    print(json.dumps(zephyr_response, indent = 4))
+                    print(r)
                     # if successful;
                     if zephyr_response["callback"]["success"]:
                         #  retrieve the instance_uuid which Zephyr assigned to the chunk
                         zAssigned_uuid = zephyr_response["instance_uuids"][0]
                         z_resp=200
-                    print(json.dumps(zephyr_body, indent=4))
+                        print(json.dumps(zephyr_body, indent=4))
+                    else:
+                        print("Zephyr did not report success")
 
                 else:
                     # no Zephyr, 
@@ -302,10 +304,13 @@ class FabricsConnectionsAPI(Resource):
                 r = requests.delete(zephyr_URI+postID, data = json.dumps(zephyr_body),\
                             headers=headers)
                 zephyr_response = r.json()
-                print(json.dumps(zephyr_response, indent = 4))
+                print(r.text)
                 # if successful;
                 if zephyr_response["callback"]["success"]:
                     z_resp=200
+                    print(json.dumps(zephyr_response, indent = 4))
+                else:
+                    print("Zephyr failed the delete connection call")
 
             else:
                 # no Zephyr, 
