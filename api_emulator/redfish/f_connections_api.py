@@ -49,7 +49,7 @@ from .templates.add_resource import z_add_resource_instance
 
 members =[]
 member_ids = []
-config = {}
+agent_config = {}
 tmpStr=""
 INTERNAL_ERROR = 500
 
@@ -88,34 +88,34 @@ class FabricsConnectionsAPI(Resource):
         collection_path = os.path.join(self.root, self.fabrics, fabric, self.f_connections, 'index.json')
 
         try:
-            global config
+            global agent_config
             #  config will be the connection request from OFMF
             if request.data: 
-                config= json.loads(request.data)
+                agent_config= json.loads(request.data)
             
-            connType = config["ConnectionType"]
+            connType = agent_config["ConnectionType"]
             if connType != "Memory":
                 print("ooops, not a memory resource connection -- exit")
                 return
-            print("connection passed in ", json.dumps(config,indent=4)) 
+            print("connection passed in ", json.dumps(agent_config,indent=4)) 
             fab_uuid = agentDB["fabricIDs"]["fab_uuid"]
-            connID = config["Id"] 
+            connID = str(agent_config["Id"] )
             # only 1 memory chunk per connection allowed in PoC
             # find the MemoryChunk path
-            tmpStr=config["MemoryChunkInfo"][0]["MemoryChunk"]["@odata.id"]
+            tmpStr=agent_config["MemoryChunkInfo"][0]["MemoryChunk"]["@odata.id"]
             # another hack 
             md_id = tmpStr.split("/")[6]
             mc_id= tmpStr.split("/")[-1]
-            connURI = config["@odata.id"]
+            connURI = agent_config["@odata.id"]
             tmpConn = {}
             tmpConn["@odata.id"] = connURI
             print("connection URI ",tmpConn)
             zephyrCMD_count = 0
-            producers= copy.deepcopy(config["Links"]["TargetEndpoints"])
-            consumers= copy.deepcopy(config["Links"]["InitiatorEndpoints"])
+            producers= copy.deepcopy(agent_config["Links"]["TargetEndpoints"])
+            consumers= copy.deepcopy(agent_config["Links"]["InitiatorEndpoints"])
             print("consumers ",consumers)
             # for POC should only be one memory chunk but copy all just in case
-            chunks= copy.deepcopy(config["MemoryChunkInfo"])
+            chunks= copy.deepcopy(agent_config["MemoryChunkInfo"])
             print(chunks)
 
             # each producer(memory target) must have its own add_resource() call
@@ -248,7 +248,7 @@ class FabricsConnectionsAPI(Resource):
                 json.dump(agentDB,file_json, indent=4)
             file_json.close()
 
-            resp = config, 200
+            resp = agent_config, 200
 
         except Exception:
             traceback.print_exc()
@@ -278,15 +278,15 @@ class FabricsConnectionsAPI(Resource):
         base_path = create_path(self.root, self.fabrics, fabric, self.f_connections)
         print("running connection DELETE ---------------")
         try:
-            global config
+            global agent_config
             #  config will be the connection request from OFMF
             if request.data: 
-                config= json.loads(request.data)
+                agent_config= json.loads(request.data)
             
-            print("connection passed in ", json.dumps(config,indent=4)) 
+            print("connection passed in ", json.dumps(agent_config,indent=4)) 
             fab_uuid = agentDB["fabricIDs"]["fab_uuid"]
-            connID = config["Id"] 
-            connURI = config["@odata.id"]
+            connID = str(agent_config["Id"] )
+            connURI = agent_config["@odata.id"]
             # retrieve the original resource ADD command sent to Zephyr
             with open("./zephyr_cmds/zephyrCONN_"+connID+".json","r") as jdata:
                 zephyr_body= json.load(jdata)
@@ -342,8 +342,8 @@ class FabricsConnectionsAPI(Resource):
                 # valid, but it is stored with the memory chunk
                 # return the DELETE request from OFMF back to OFMF, it is expecting it
                 os.remove("./zephyr_cmds/zephyrCONN_"+connID+".json")
-                print("returning DELETE request to OFMF ",json.dumps(config, indent = 4))
-                resp = config, 200
+                print("returning DELETE request to OFMF ",json.dumps(agent_config, indent = 4))
+                resp = agent_config, 200
 
         except Exception:
             traceback.print_exc()
@@ -364,7 +364,7 @@ class FabricsConnectionsCollectionAPI(Resource):
         path = os.path.join(self.root, self.fabrics, fabric, self.f_connections, 'index.json')
         return get_json_data (path)
 
-    def verify(self, config):
+    def verify(self, agent_config):
         # TODO: Implement a method to verify that the POST body is valid
         return True,{}
 

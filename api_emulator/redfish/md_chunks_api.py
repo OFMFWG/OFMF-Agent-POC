@@ -47,7 +47,7 @@ from .templates.md_chunks import get_MDChunks_instance
 
 members =[]
 member_ids = []
-config = {}
+agent_conf = {}
 INTERNAL_ERROR = 500
 
 # the following is temporary hack
@@ -89,22 +89,22 @@ class MDChunksAPI(Resource):
         collection_path = os.path.join(self.root, self.chassis, chassis, self.memory_domains, memory_domain, self.md_chunks, 'index.json')
 
         try:
-            global config
-            print("received config", config)
+            global agent_conf
+            print("received config", agent_conf)
             tmpMemChunk={}
             if request.data: 
-                config= json.loads(request.data)
+                agent_conf= json.loads(request.data)
             #  find the nodeID of the endpoint that sources the memory chunk
             #  a memory chunk may have only ONE sourcing endpoint in PoC
-            print("adjusted config", config)
-            ep_id = config["Links"]["Endpoints"][0]["@odata.id"].split("/")[-1]
+            print("adjusted config", agent_conf)
+            ep_id = agent_conf["Links"]["Endpoints"][0]["@odata.id"].split("/")[-1]
             nodeID = agentDB["endpt_xref"][ep_id]
             numaID = 1  # PoC default, only value allowed
             #  extract the details of the mem chunk
             print("source node for mem chunk is ",nodeID)
-            chunkSize=(config["MemoryChunkSizeMiB"])*(2**20)
-            chunkStart=(config["AddressRangeOffsetMiB"])*(2**20)
-            memClass=config["Oem"]["class"]
+            chunkSize=(agent_conf["MemoryChunkSizeMiB"])*(2**20)
+            chunkStart=(agent_conf["AddressRangeOffsetMiB"])*(2**20)
+            memClass=agent_conf["Oem"]["class"]
             md_index=agentDB["nodes"][nodeID]["zephyrNodeIDs"]["md_index"]
             daxCount=agentDB["fabricIDs"]["daxCount"]
             memType=1
@@ -129,7 +129,7 @@ class MDChunksAPI(Resource):
             rw_rkey = 0
             instance_uuid = "???"     # real value comes from Zephyr at connection
 
-            tmpMemChunk["@odata.id"] = config["@odata.id"]
+            tmpMemChunk["@odata.id"] = agent_conf["@odata.id"]
             tmpMemChunk["class_uuid"] = class_uuid
             tmpMemChunk["instance_uuid"] = instance_uuid
             tmpMemChunk["flags"] = memFlags
@@ -155,9 +155,9 @@ class MDChunksAPI(Resource):
                 json.dump(agentDB,file_json, indent=4)
             file_json.close()
             # fill in the 'flags' field of the chunk request
-            config["Oem"]["flags"]=memFlags
+            agent_conf["Oem"]["flags"]=memFlags
 
-            resp = config, 200
+            resp = agent_conf, 200
 
         except Exception:
             traceback.print_exc()
@@ -219,13 +219,13 @@ class MDChunksAPI(Resource):
         base_path = create_path(self.root, self.chassis, chassis, self.memory_domains, memory_domain, self.md_chunks)
         print("running memoryChunk DELETE ---------------")
         try:
-            global config
+            global agent_conf
             #  config will be the connection request from OFMF
             if request.data: 
-                config= json.loads(request.data)
+                agent_conf= json.loads(request.data)
             
-            print("memory chunk passed in ", json.dumps(config,indent=4)) 
-            chunkURI = config["@odata.id"]
+            print("memory chunk passed in ", json.dumps(agent_conf,indent=4)) 
+            chunkURI = agent_conf["@odata.id"]
 
             #  now find the memory chunk in agentDB file
             #  brute force:  compare all nodes' chunks to this one
@@ -247,8 +247,8 @@ class MDChunksAPI(Resource):
                 json.dump(agentDB,file_json, indent=4)
             file_json.close()
 
-            print("returning DELETE request to OFMF ",json.dumps(config, indent = 4))
-            resp = config, 200
+            print("returning DELETE request to OFMF ",json.dumps(agent_conf, indent = 4))
+            resp = agent_conf, 200
 
         except Exception:
             traceback.print_exc()
@@ -271,7 +271,7 @@ class MDChunksCollectionAPI(Resource):
         path = os.path.join(self.root, self.chassis, chassis, self.memory_domains, 'index.json')
         return get_json_data (path)
 
-    def verify(self, config):
+    def verify(self, agent_conf):
         # TODO: Implement a method to verify that the POST body is valid
         return True,{}
 

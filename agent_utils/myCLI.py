@@ -369,7 +369,7 @@ def delete_connection(service_URI, headers, connInventory ):
     req_connID=str(input("use which connection? >"))
     postID=rb+"/Fabrics/" + req_fabricID +"/Connections/" + req_connID
     print(service_URI+postID)
-    print("----")
+    print("----extract named connection from Connection collection")
     r = requests.get(service_URI+postID, data=json.dumps(data),\
                 headers=headers)
     print(r)
@@ -686,9 +686,9 @@ def myCLI(agent_URI,service_URI):
             print("sorting memory chunks and inserting free blocks")
             tmpMemInventory=copy.deepcopy(memInventory)
             sort_chunks(tmpMemInventory)
-            print(json.dumps(tmpMemInventory, indent = 4))
+            #print(json.dumps(tmpMemInventory, indent = 4))
             find_free_mem(tmpMemInventory)
-            print(json.dumps(tmpMemInventory, indent = 4))
+            #print(json.dumps(tmpMemInventory, indent = 4))
             memInventory=copy.deepcopy(tmpMemInventory)
             print("---------------------")
             print()
@@ -698,24 +698,66 @@ def myCLI(agent_URI,service_URI):
             print("retrieve free mem and busy mem lists")
             make_free_list(memInventory,freeList,busyList)
         elif myCMD == "create_chunk":
+            tmpMemInventory={}
+            get_memDomains(service_URI,tmpMemInventory)
+            sort_chunks(tmpMemInventory)
+            find_free_mem(tmpMemInventory)
+            memInventory=copy.deepcopy(tmpMemInventory)
+            make_free_list(memInventory,freeList,busyList)
             req_fabricID=str(input("use which fabric? >"))
             req_domNum=str(input("use which memory domain? >"))
             req_sizeInMB=int(input("size of chunk in MiB? >"))
             req_class=int(input("class (dax=2, block=17) of chunk (2 or 17)> "))
             create_chunk(service_URI,headers,memInventory,req_fabricID,req_domNum,req_sizeInMB,req_class)
         elif myCMD =="delete_chunk":
+            tmpMemInventory={}
+            get_memDomains(service_URI,tmpMemInventory)
+            sort_chunks(tmpMemInventory)
+            find_free_mem(tmpMemInventory)
+            memInventory=copy.deepcopy(tmpMemInventory)
+            make_free_list(memInventory,freeList,busyList)
             delete_chunk(service_URI,headers,memInventory,busyList)
 
         elif myCMD == "create_conn":
+            tmpMemInventory={}
+            get_memDomains(service_URI,tmpMemInventory)
+            sort_chunks(tmpMemInventory)
+            find_free_mem(tmpMemInventory)
+            #print(json.dumps(tmpMemInventory, indent = 4))
+            memInventory=copy.deepcopy(tmpMemInventory)
+            tmpSysInventory={}
+            get_systems(service_URI,tmpSysInventory)
+            #print(json.dumps(tmpSysInventory, indent = 4))
+            sysInventory=copy.deepcopy(tmpSysInventory)
+            make_free_list(memInventory,freeList,busyList)
             req_fabricID=str(input("use which fabric? >"))
             req_domNum=str(input("use which memory domain? >"))
             req_chunkID=str(input("use which memory chunk? >"))
             req_sysID=(input("use which systemID? >"))
             req_faID=(input("use which Fabric Adapter ? >"))
+            tmpConnInventory={}
+            get_connections(service_URI,req_fabricID, tmpConnInventory)
+            print(json.dumps(tmpConnInventory, indent = 4))
+            connInventory=copy.deepcopy(tmpConnInventory)
             create_connection(service_URI,headers,memInventory,sysInventory,connInventory,
                     req_fabricID,req_domNum,req_chunkID,req_sysID,req_faID)
 
         elif myCMD =="delete_conn":
+            tmpMemInventory={}
+            get_memDomains(service_URI,tmpMemInventory)
+            sort_chunks(tmpMemInventory)
+            find_free_mem(tmpMemInventory)
+            #print(json.dumps(tmpMemInventory, indent = 4))
+            memInventory=copy.deepcopy(tmpMemInventory)
+            tmpSysInventory={}
+            get_systems(service_URI,tmpSysInventory)
+            #print(json.dumps(tmpSysInventory, indent = 4))
+            sysInventory=copy.deepcopy(tmpSysInventory)
+            make_free_list(memInventory,freeList,busyList)
+            tmpConnInventory={}
+            get_connections(service_URI,req_fabricID, tmpConnInventory)
+            print(json.dumps(tmpConnInventory, indent = 4))
+            connInventory=copy.deepcopy(tmpConnInventory)
             delete_connection(service_URI,headers,connInventory)
 
         elif myCMD == "post":
