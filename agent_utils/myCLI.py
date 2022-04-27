@@ -53,6 +53,7 @@ def get_connections(service_URI,f_id, connInventory):
         tmpList=data["Status"]["State"]
         connInventory[f_id]["connections"][tmpConnID]["State"]= tmpList
 
+    # report the max connector ID found in current connections
     connInventory[f_id]["maxID"]=maxConnID
 
     return
@@ -621,7 +622,9 @@ def find_free_mem(memInventory):
 def myCLI(agent_URI,service_URI):
     postFile=""
     myCMD=""
+    connCount=0
     memInventory={}
+    connInventory={}
     sysInventory={}
     tmpMemInventory={}
     freeList=[]
@@ -667,9 +670,13 @@ def myCLI(agent_URI,service_URI):
             print(json.dumps(tmpSysInventory, indent = 4))
             sysInventory=copy.deepcopy(tmpSysInventory)
         elif myCMD == "get_conns":
+            f_id="GenZ4b0a" # cheat for the POC
             tmpConnInventory={}
-            f_id="GenZ4b0a"
-            get_connections(service_URI,f_id, tmpConnInventory)
+            get_connections(service_URI,f_id,tmpConnInventory)
+            if connCount>tmpConnInventory[f_id]["maxID"] :
+                tmpConnInventory[f_id]["maxID"] = connCount
+            else:
+                connCount = tmpConnInventory[f_id]["maxID"]
             print(json.dumps(tmpConnInventory, indent = 4))
             connInventory=copy.deepcopy(tmpConnInventory)
         elif myCMD == "get_mem":
@@ -737,6 +744,10 @@ def myCLI(agent_URI,service_URI):
             req_faID=(input("use which Fabric Adapter ? >"))
             tmpConnInventory={}
             get_connections(service_URI,req_fabricID, tmpConnInventory)
+            if connCount>tmpConnInventory[req_fabricID]["maxID"] :
+                tmpConnInventory[req_fabricID]["maxID"] = connCount
+            else:
+                connCount = tmpConnInventory[req_fabricID]["maxID"]
             print(json.dumps(tmpConnInventory, indent = 4))
             connInventory=copy.deepcopy(tmpConnInventory)
             create_connection(service_URI,headers,memInventory,sysInventory,connInventory,
