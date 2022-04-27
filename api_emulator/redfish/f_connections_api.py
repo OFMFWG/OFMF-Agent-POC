@@ -301,7 +301,7 @@ class FabricsConnectionsAPI(Resource):
                 zephyr_URI = g.ZEPHYR
                 postID= g.ZEPHYRDEL
                 headers = {'Content-type':'application/json', 'Accept':'text/plain'}
-                r = requests.delete(zephyr_URI+postID, data = json.dumps(zephyr_body),\
+                r = requests.post(zephyr_URI+postID, data = json.dumps(zephyr_body),\
                             headers=headers)
                 zephyr_response = r.json()
                 print(r.text)
